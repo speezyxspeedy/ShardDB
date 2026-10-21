@@ -1,0 +1,569 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HelpDeskX — Support Agent Dashboard & Ticket Management</title>
+  <meta name="description" content="HelpDeskX full-stack customer support ticket management platform. Built with FastAPI and modern Vanilla JavaScript.">
+  
+  <!-- Inter Font -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  
+  <!-- Chart.js CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.2/dist/chart.umd.min.js"></script>
+
+  <!-- Application Styles -->
+  <link rel="stylesheet" href="/static/css/styles.css">
+</head>
+<body>
+
+<div class="app-container">
+  <!-- Sidebar -->
+  <aside class="sidebar" id="app-sidebar">
+    <div class="sidebar-header">
+      <a href="/" class="logo-container">
+        <div class="logo-icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+            <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
+            <polyline points="22,6 12,13 2,6"/>
+          </svg>
+        </div>
+        <div>
+          <span class="logo-text">HelpDesk<span style="color:var(--primary);">X</span></span>
+          <span class="logo-badge">Agent</span>
+        </div>
+      </a>
+    </div>
+
+    <!-- Navigation -->
+    <nav class="sidebar-nav">
+      <div class="nav-section-title">Workspace</div>
+      
+      <button type="button" class="nav-link active" id="nav-btn-dashboard" onclick="switchView('dashboard')">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <rect x="3" y="3" width="7" height="7"/>
+          <rect x="14" y="3" width="7" height="7"/>
+          <rect x="14" y="14" width="7" height="7"/>
+          <rect x="3" y="14" width="7" height="7"/>
+        </svg>
+        <span>Dashboard</span>
+      </button>
+
+      <button type="button" class="nav-link" id="nav-btn-tickets" onclick="switchView('tickets')">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+          <polyline points="14 2 14 8 20 8"/>
+          <line x1="16" y1="13" x2="8" y2="13"/>
+          <line x1="16" y1="17" x2="8" y2="17"/>
+          <polyline points="10 9 9 9 8 9"/>
+        </svg>
+        <span>All Tickets</span>
+        <span class="nav-count-badge" id="sidebar-open-count">0</span>
+      </button>
+
+      <div class="nav-section-title" style="margin-top: 10px;">Quick Views</div>
+      
+      <button type="button" class="nav-link" onclick="filterByQuick('open')">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="10"/>
+          <line x1="12" y1="8" x2="12" y2="12"/>
+          <line x1="12" y1="16" x2="12.01" y2="16"/>
+        </svg>
+        <span>Open Queue</span>
+      </button>
+
+      <button type="button" class="nav-link" onclick="filterByQuick('urgent')">
+        <svg class="nav-icon" style="color:var(--danger);" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
+        </svg>
+        <span>Urgent & High</span>
+      </button>
+
+      <div class="nav-section-title" style="margin-top: 10px;">Portals</div>
+
+      <a href="/customer" class="nav-link">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+          <circle cx="12" cy="7" r="4"/>
+        </svg>
+        <span>Switch to Customer Portal</span>
+      </a>
+
+      <a href="/docs" target="_blank" rel="noopener" class="nav-link">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
+          <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
+        </svg>
+        <span>FastAPI Docs (Swagger)</span>
+      </a>
+    </nav>
+
+    <!-- Sidebar Demo Agent Selector -->
+    <div class="sidebar-footer">
+      <div class="demo-identity-box">
+        <div class="demo-banner">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+          Demo Identity
+        </div>
+        <div class="identity-select-wrap">
+          <select id="demo-agent-select" class="identity-select" aria-label="Select Demo Agent">
+            <option>Loading agents...</option>
+          </select>
+        </div>
+        <div class="demo-disclaimer">
+          Switch support agent persona for demonstration purposes. Not a secure login boundary.
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- Main Content Wrapper -->
+  <main class="main-wrapper">
+    <!-- Top Bar Header -->
+    <header class="top-header">
+      <div class="header-left">
+        <button type="button" class="menu-toggle" id="menu-toggle-btn" aria-label="Toggle navigation menu" onclick="toggleSidebar()">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+        </button>
+        <h1 class="page-title" id="top-page-title">Support Dashboard</h1>
+      </div>
+
+      <div class="header-right">
+        <!-- Theme Toggle -->
+        <button type="button" class="btn-icon-only" id="theme-toggle-btn" onclick="toggleTheme()" title="Toggle Theme" aria-label="Toggle Theme">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+        </button>
+
+        <!-- New Ticket Button -->
+        <button type="button" class="btn btn-primary" onclick="openCreateTicketModal()">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          <span>New Ticket</span>
+        </button>
+      </div>
+    </header>
+
+    <!-- Main Views Area -->
+    <div class="content-area">
+      
+      <!-- VIEW 1: DASHBOARD OVERVIEW -->
+      <section class="view-section active" id="view-dashboard">
+        <!-- Real-time Stats Cards -->
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-header">
+              <span class="stat-title">Total Tickets</span>
+              <div class="stat-icon blue">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+              </div>
+            </div>
+            <div class="stat-value" id="stat-total">0</div>
+            <div class="stat-footer">All logged records</div>
+          </div>
+
+          <div class="stat-card">
+            <div class="stat-header">
+              <span class="stat-title">Open Tickets</span>
+              <div class="stat-icon blue">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+              </div>
+            </div>
+            <div class="stat-value" id="stat-open">0</div>
+            <div class="stat-footer">Awaiting investigation</div>
+          </div>
+
+          <div class="stat-card">
+            <div class="stat-header">
+              <span class="stat-title">In Progress</span>
+              <div class="stat-icon amber">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
+              </div>
+            </div>
+            <div class="stat-value" id="stat-in-progress">0</div>
+            <div class="stat-footer">Actively being worked on</div>
+          </div>
+
+          <div class="stat-card">
+            <div class="stat-header">
+              <span class="stat-title">Waiting for Customer</span>
+              <div class="stat-icon purple">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+              </div>
+            </div>
+            <div class="stat-value" id="stat-waiting">0</div>
+            <div class="stat-footer">Pending client reply</div>
+          </div>
+
+          <div class="stat-card">
+            <div class="stat-header">
+              <span class="stat-title">Resolved</span>
+              <div class="stat-icon green">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+              </div>
+            </div>
+            <div class="stat-value" id="stat-resolved">0</div>
+            <div class="stat-footer">Successfully resolved</div>
+          </div>
+
+          <div class="stat-card">
+            <div class="stat-header">
+              <span class="stat-title">Urgent & High</span>
+              <div class="stat-icon red">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+              </div>
+            </div>
+            <div class="stat-value" id="stat-urgent-high">0</div>
+            <div class="stat-footer">High priority incidents</div>
+          </div>
+        </div>
+
+        <!-- Interactive Charts Grid -->
+        <div class="charts-grid">
+          <div class="chart-card">
+            <div class="chart-card-header">
+              <div class="chart-card-title">7-Day Ticket Inflow Trend</div>
+              <span style="font-size: 11px; color: var(--text-muted);">Real-time database volume</span>
+            </div>
+            <div class="chart-canvas-container">
+              <canvas id="ticketTrendChart"></canvas>
+            </div>
+          </div>
+
+          <div class="chart-card">
+            <div class="chart-card-header">
+              <div class="chart-card-title">Status Breakdown</div>
+            </div>
+            <div class="chart-canvas-container">
+              <canvas id="statusDoughnutChart"></canvas>
+            </div>
+          </div>
+        </div>
+
+        <!-- Lower Grid: Priority Chart, Workload & Activity Feed -->
+        <div class="dashboard-details-grid">
+          <!-- Priority Distribution -->
+          <div class="chart-card">
+            <div class="chart-card-header">
+              <div class="chart-card-title">Priority Breakdown</div>
+            </div>
+            <div class="chart-canvas-container" style="height: 200px;">
+              <canvas id="priorityBarChart"></canvas>
+            </div>
+            
+            <div style="border-top: 1px solid var(--border); padding-top: 14px; margin-top: 8px;">
+              <div class="chart-card-title" style="margin-bottom: 10px;">Agent Workload Distribution</div>
+              <div class="agent-workload-list" id="agent-workload-container">
+                <!-- Populated dynamically -->
+              </div>
+            </div>
+          </div>
+
+          <!-- Recent Ticket Activity Feed -->
+          <div class="details-card">
+            <div class="details-card-header">
+              <div class="details-card-title">Recent System Activity</div>
+              <span style="font-size: 11px; color: var(--text-muted);">Audit log events</span>
+            </div>
+            <div class="activity-list" id="recent-activity-container">
+              <!-- Populated dynamically -->
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- VIEW 2: ALL TICKETS MANAGEMENT TABLE -->
+      <section class="view-section" id="view-tickets">
+        <div class="tickets-card">
+          <!-- Toolbar & Filters -->
+          <div class="tickets-toolbar">
+            <div class="search-box">
+              <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="11" cy="11" r="8"/>
+                <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+              </svg>
+              <input type="text" id="ticket-search-input" class="search-input" placeholder="Search number, title, customer..." aria-label="Search Tickets">
+            </div>
+
+            <div class="filters-row">
+              <select id="filter-status" class="select-filter" aria-label="Filter by Status">
+                <option value="">All Statuses</option>
+                <option value="Open">Open</option>
+                <option value="In Progress">In Progress</option>
+                <option value="Waiting for Customer">Waiting for Customer</option>
+                <option value="Resolved">Resolved</option>
+                <option value="Closed">Closed</option>
+              </select>
+
+              <select id="filter-priority" class="select-filter" aria-label="Filter by Priority">
+                <option value="">All Priorities</option>
+                <option value="Urgent">Urgent</option>
+                <option value="High">High</option>
+                <option value="Medium">Medium</option>
+                <option value="Low">Low</option>
+              </select>
+
+              <select id="filter-category" class="select-filter" aria-label="Filter by Category">
+                <option value="">All Categories</option>
+                <option value="Technical">Technical</option>
+                <option value="Billing">Billing</option>
+                <option value="Account">Account</option>
+                <option value="Feature Request">Feature Request</option>
+                <option value="General">General</option>
+              </select>
+
+              <select id="filter-agent" class="select-filter" aria-label="Filter by Assignee">
+                <option value="">All Assignees</option>
+                <option value="-1">Unassigned</option>
+              </select>
+
+              <select id="filter-sort" class="select-filter" aria-label="Sort tickets">
+                <option value="newest">Sort: Newest</option>
+                <option value="oldest">Sort: Oldest</option>
+                <option value="priority">Sort: Highest Priority</option>
+                <option value="updated">Sort: Last Updated</option>
+              </select>
+
+              <button type="button" id="reset-filters-btn" class="btn btn-outline btn-sm" title="Reset Filters">
+                Reset
+              </button>
+
+              <button type="button" id="refresh-tickets-btn" class="btn btn-secondary btn-sm" title="Refresh Tickets">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
+                Refresh
+              </button>
+            </div>
+          </div>
+
+          <!-- Tickets Table -->
+          <div class="table-responsive">
+            <table class="tickets-table">
+              <thead>
+                <tr>
+                  <th>Ticket</th>
+                  <th>Title & Description</th>
+                  <th>Status</th>
+                  <th>Priority</th>
+                  <th>Category</th>
+                  <th>Assignee</th>
+                  <th>Created</th>
+                </tr>
+              </thead>
+              <tbody id="tickets-table-body">
+                <!-- Populated dynamically -->
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Pagination Footer -->
+          <div class="pagination-footer">
+            <div id="pagination-info">Showing 0 tickets</div>
+            <div class="pagination-controls">
+              <button type="button" class="pagination-btn" id="pagination-prev" disabled>
+                &larr; Previous
+              </button>
+              <button type="button" class="pagination-btn" id="pagination-next" disabled>
+                Next &rarr;
+              </button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+    </div>
+  </main>
+</div>
+
+<!-- CREATE TICKET MODAL -->
+<div class="modal-backdrop" id="create-ticket-modal">
+  <div class="modal-container">
+    <div class="modal-header">
+      <h3 class="modal-title">Create Support Ticket</h3>
+      <button type="button" class="btn-icon-only" onclick="closeCreateTicketModal()" aria-label="Close modal">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+
+    <form id="create-ticket-form">
+      <div class="modal-body">
+        <div class="form-group">
+          <label class="form-label" for="new-ticket-title">Ticket Subject / Title *</label>
+          <input type="text" id="new-ticket-title" name="title" class="form-input" placeholder="e.g., Cannot export invoices to CSV" required minlength="3" maxlength="200">
+        </div>
+
+        <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+          <div class="form-group">
+            <label class="form-label" for="new-ticket-category">Category *</label>
+            <select id="new-ticket-category" name="category" class="form-select" required>
+              <option value="Technical">Technical</option>
+              <option value="Billing">Billing</option>
+              <option value="Account">Account</option>
+              <option value="Feature Request">Feature Request</option>
+              <option value="General">General</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="new-ticket-priority">Priority *</label>
+            <select id="new-ticket-priority" name="priority" class="form-select" required>
+              <option value="Low">Low</option>
+              <option value="Medium" selected>Medium</option>
+              <option value="High">High</option>
+              <option value="Urgent">Urgent</option>
+            </select>
+          </div>
+        </div>
+
+        <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+          <div class="form-group">
+            <label class="form-label" for="new-ticket-customer-name">Customer Name *</label>
+            <input type="text" id="new-ticket-customer-name" name="customer_name" class="form-input" placeholder="Customer full name" required minlength="2">
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="new-ticket-customer-email">Customer Email *</label>
+            <input type="email" id="new-ticket-customer-email" name="customer_email" class="form-input" placeholder="user@company.com" required>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="new-ticket-agent">Assign Support Agent (Optional)</label>
+          <select id="new-ticket-agent" name="assigned_agent_id" class="form-select">
+            <option value="">Unassigned</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="new-ticket-description">Detailed Description *</label>
+          <textarea id="new-ticket-description" name="description" class="form-textarea" rows="4" placeholder="Provide full details of the customer issue, symptoms, steps to reproduce..." required minlength="5"></textarea>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" onclick="closeCreateTicketModal()">Cancel</button>
+        <button type="submit" class="btn btn-primary">Create Ticket</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- TICKET DETAIL DRAWER -->
+<div class="drawer-backdrop" id="ticket-drawer-backdrop" onclick="handleDrawerBackdropClick(event)">
+  <div class="drawer-panel" id="ticket-drawer-panel">
+    <!-- Drawer Header -->
+    <div class="drawer-header">
+      <div class="drawer-header-left">
+        <span class="ticket-number-cell" id="drawer-ticket-number" style="font-size: 15px;">HDX-XXXX</span>
+        <span id="drawer-ticket-status-badge"></span>
+        <span id="drawer-ticket-priority-badge"></span>
+      </div>
+      <div>
+        <button type="button" class="btn-icon-only" onclick="TicketDetailModal.close()" aria-label="Close drawer">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- Drawer Content Split: Left (Timeline + Messages) / Right (Metadata & Actions) -->
+    <div class="drawer-content">
+      <div class="drawer-main" id="drawer-main-content">
+        <!-- Injected dynamically by TicketDetailModal -->
+      </div>
+      <div class="drawer-sidebar" id="drawer-sidebar-content">
+        <!-- Injected dynamically by TicketDetailModal -->
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST CONTAINER -->
+<div class="toast-container" id="toast-container"></div>
+
+<!-- JavaScript modules -->
+<script src="/static/js/api.js"></script>
+<script src="/static/js/dashboard.js"></script>
+<script src="/static/js/tickets.js"></script>
+<script src="/static/js/ticket-detail.js"></script>
+
+<script>
+  // View Switcher logic
+  function switchView(viewName) {
+    document.querySelectorAll('.view-section').forEach(el => el.classList.remove('active'));
+    document.querySelectorAll('.nav-link').forEach(el => el.classList.remove('active'));
+
+    const viewTarget = document.getElementById(`view-${viewName}`);
+    const navBtn = document.getElementById(`nav-btn-${viewName}`);
+    const pageTitle = document.getElementById('top-page-title');
+
+    if (viewTarget) viewTarget.classList.add('active');
+    if (navBtn) navBtn.classList.add('active');
+
+    if (viewName === 'dashboard') {
+      pageTitle.textContent = 'Support Dashboard';
+      loadDashboard();
+    } else if (viewName === 'tickets') {
+      pageTitle.textContent = 'Ticket Management';
+      TicketManager.loadTickets();
+    }
+
+    // Close mobile sidebar if open
+    document.getElementById('app-sidebar')?.classList.remove('mobile-open');
+  }
+
+  function filterByQuick(type) {
+    switchView('tickets');
+    if (type === 'open') {
+      const statusEl = document.getElementById('filter-status');
+      if (statusEl) {
+        statusEl.value = 'Open';
+        TicketManager.statusFilter = 'Open';
+        TicketManager.currentPage = 1;
+        TicketManager.loadTickets();
+      }
+    } else if (type === 'urgent') {
+      const priorityEl = document.getElementById('filter-priority');
+      if (priorityEl) {
+        priorityEl.value = 'Urgent';
+        TicketManager.priorityFilter = 'Urgent';
+        TicketManager.currentPage = 1;
+        TicketManager.loadTickets();
+      }
+    }
+  }
+
+  function toggleSidebar() {
+    const sidebar = document.getElementById('app-sidebar');
+    if (sidebar) sidebar.classList.toggle('mobile-open');
+  }
+
+  function openCreateTicketModal() {
+    const modal = document.getElementById('create-ticket-modal');
+    if (modal) {
+      modal.classList.add('active');
+      TicketManager.populateAgentDropdowns();
+    }
+  }
+
+  function closeCreateTicketModal() {
+    const modal = document.getElementById('create-ticket-modal');
+    if (modal) modal.classList.remove('active');
+  }
+
+  function handleDrawerBackdropClick(e) {
+    if (e.target.id === 'ticket-drawer-backdrop') {
+      TicketDetailModal.close();
+    }
+  }
+
+  // Initial Startup
+  document.addEventListener('DOMContentLoaded', async () => {
+    initTheme();
+    await DemoAgentManager.init('demo-agent-select');
+    await TicketManager.populateAgentDropdowns();
+    TicketManager.init();
+    loadDashboard();
+  });
+</script>
+
+</body>
+</html>

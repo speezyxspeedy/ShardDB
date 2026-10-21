@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Customer Portal — HelpDeskX Support</title>
+  <meta name="description" content="HelpDeskX Customer Support Portal — Track and submit support tickets, view replies, and collaborate with support engineers.">
+
+  <!-- Inter Font -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <!-- Application Styles -->
+  <link rel="stylesheet" href="/static/css/styles.css">
+  <style>
+    /* Customer portal customized header */
+    .portal-container {
+      max-width: 1040px;
+      margin: 0 auto;
+      padding: 32px 20px 80px;
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+    }
+
+    .customer-hero {
+      background: linear-gradient(135deg, rgba(37, 99, 235, 0.15), rgba(139, 92, 246, 0.1));
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 32px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 20px;
+    }
+
+    .hero-title {
+      font-size: 22px;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin-bottom: 6px;
+    }
+
+    .hero-subtitle {
+      font-size: 14px;
+      color: var(--text-secondary);
+      max-width: 540px;
+    }
+  </style>
+</head>
+<body style="display:block;">
+
+  <!-- Global Header -->
+  <header class="top-header" style="position: sticky; top: 0; z-index: 50;">
+    <div style="max-width: 1040px; margin: 0 auto; width: 100%; display: flex; align-items: center; justify-content: space-between;">
+      <a href="/customer" class="logo-container">
+        <div class="logo-icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+            <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
+            <polyline points="22,6 12,13 2,6"/>
+          </svg>
+        </div>
+        <div>
+          <span class="logo-text">HelpDesk<span style="color:var(--primary);">X</span></span>
+          <span class="logo-badge" style="background-color: var(--success-light); color: var(--success);">Customer</span>
+        </div>
+      </a>
+
+      <div style="display:flex; align-items:center; gap: 14px;">
+        <!-- Demo Customer Switcher -->
+        <div style="display:flex; align-items:center; gap: 8px;">
+          <div style="font-size: 11px; text-transform: uppercase; font-weight: 700; color: var(--warning); display:flex; align-items:center; gap:3px;">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+            Demo Identity:
+          </div>
+          <select id="demo-customer-select" class="form-select" style="padding: 5px 10px; font-size: 12px; width: auto; font-weight: 500;" aria-label="Select Demo Customer Identity">
+            <!-- Populated dynamically -->
+          </select>
+        </div>
+
+        <!-- Theme Toggle -->
+        <button type="button" class="btn-icon-only" id="theme-toggle-btn" onclick="toggleTheme()" title="Toggle Theme" aria-label="Toggle Theme">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+        </button>
+
+        <!-- Switch to Agent Dashboard -->
+        <a href="/" class="btn btn-secondary btn-sm">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+          Agent Dashboard
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <!-- Portal Container -->
+  <main class="portal-container">
+    
+    <!-- Hero Banner -->
+    <div class="customer-hero">
+      <div>
+        <h1 class="hero-title">Hello, <span id="customer-display-name">Customer</span></h1>
+        <p class="hero-subtitle">
+          Welcome to the HelpDeskX support portal for <strong id="customer-display-company">your organization</strong>. Check ticket resolution progress, respond to engineer questions, or open a new inquiry.
+        </p>
+      </div>
+
+      <div>
+        <button type="button" class="btn btn-primary" onclick="CustomerPortal.openNewTicketModal()">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          Submit Support Ticket
+        </button>
+      </div>
+    </div>
+
+    <!-- Filter & Search Toolbar -->
+    <div style="display:flex; align-items:center; justify-content:space-between; gap: 14px; flex-wrap: wrap;">
+      <div style="display:flex; align-items:center; gap: 8px;">
+        <h2 style="font-size: 16px; font-weight: 700; color: var(--text-primary);">My Support Requests</h2>
+      </div>
+
+      <div style="display:flex; align-items:center; gap: 10px; flex-wrap: wrap;">
+        <div class="search-box" style="min-width: 260px;">
+          <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="11" cy="11" r="8"/>
+            <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+          </svg>
+          <input type="text" id="customer-search-input" class="search-input" placeholder="Search my tickets..." aria-label="Search my tickets">
+        </div>
+
+        <select id="customer-status-filter" class="select-filter" aria-label="Filter my tickets by status">
+          <option value="">All Statuses</option>
+          <option value="Open">Open</option>
+          <option value="In Progress">In Progress</option>
+          <option value="Waiting for Customer">Waiting for Customer</option>
+          <option value="Resolved">Resolved</option>
+          <option value="Closed">Closed</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Ticket Cards List -->
+    <div id="customer-tickets-list" style="display:flex; flex-direction:column; gap: 14px;">
+      <!-- Populated dynamically -->
+    </div>
+
+  </main>
+
+  <!-- CUSTOMER CREATE TICKET MODAL -->
+  <div class="modal-backdrop" id="customer-create-modal">
+    <div class="modal-container">
+      <div class="modal-header">
+        <h3 class="modal-title">Submit a Support Ticket</h3>
+        <button type="button" class="btn-icon-only" onclick="CustomerPortal.closeNewTicketModal()" aria-label="Close modal">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </div>
+
+      <form id="customer-new-ticket-form">
+        <div class="modal-body">
+          <div class="form-group">
+            <label class="form-label" for="cust-new-title">What can we help you with? (Subject) *</label>
+            <input type="text" id="cust-new-title" name="title" class="form-input" placeholder="Brief summary of the issue" required minlength="3" maxlength="200">
+          </div>
+
+          <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+            <div class="form-group">
+              <label class="form-label" for="cust-new-category">Category *</label>
+              <select id="cust-new-category" name="category" class="form-select" required>
+                <option value="Technical">Technical Issue</option>
+                <option value="Billing">Billing & Payments</option>
+                <option value="Account">Account Access</option>
+                <option value="Feature Request">Feature Request</option>
+                <option value="General">General Inquiry</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="cust-new-priority">Severity / Priority *</label>
+              <select id="cust-new-priority" name="priority" class="form-select" required>
+                <option value="Low">Low — Minor question</option>
+                <option value="Medium" selected>Medium — Standard issue</option>
+                <option value="High">High — Impaired workflow</option>
+                <option value="Urgent">Urgent — Critical production outage</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Pre-filled customer info -->
+          <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+            <div class="form-group">
+              <label class="form-label">Submitted By (Demo Name)</label>
+              <input type="text" id="new-ticket-customer-name" class="form-input" disabled style="opacity:0.75; cursor:not-allowed;">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Contact Email (Demo Email)</label>
+              <input type="email" id="new-ticket-customer-email" class="form-input" disabled style="opacity:0.75; cursor:not-allowed;">
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="cust-new-description">Issue Details *</label>
+            <textarea id="cust-new-description" name="description" class="form-textarea" rows="5" placeholder="Please provide specific details, error messages, and reproduction steps..." required minlength="5"></textarea>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" onclick="CustomerPortal.closeNewTicketModal()">Cancel</button>
+          <button type="submit" class="btn btn-primary">Submit Ticket</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- CUSTOMER TICKET DETAIL MODAL -->
+  <div class="modal-backdrop" id="customer-ticket-modal">
+    <div class="modal-container" style="max-width: 720px;">
+      <div class="modal-header">
+        <h3 class="modal-title" id="customer-modal-title">Ticket Details</h3>
+        <button type="button" class="btn-icon-only" onclick="CustomerPortal.closeTicketDetail()" aria-label="Close modal">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </div>
+
+      <div class="modal-body" id="customer-ticket-modal-body">
+        <!-- Populated dynamically -->
+      </div>
+    </div>
+  </div>
+
+  <!-- TOAST CONTAINER -->
+  <div class="toast-container" id="toast-container"></div>
+
+  <!-- Scripts -->
+  <script src="/static/js/api.js"></script>
+  <script src="/static/js/customer.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      initTheme();
+      CustomerPortal.init();
+    });
+  </script>
+</body>
+</html>
