@@ -1,396 +1,111 @@
-/* ==========================================================================
-   NodeFlow — Swiss Editorial meets Industrial Blueprint
-   Color Tokens, Typographic System & Universal Utility Classes
-   ========================================================================== */
-
 :root {
-  /* Blueprint Core Palette */
-  --bg-canvas: #F7F5EF;          /* Warm ivory main background */
-  --bg-panel: #FFFFFF;           /* Crisp white panels */
-  --bg-panel-subtle: #FAF9F5;    /* Subtle off-white for table headers / cards */
-  --bg-panel-elevated: #FFFFFF;  /* Overlays, modals, popovers */
-  --bg-active: #F0ECE1;          /* Active selection on lists */
+  --text: #6b6375;
+  --text-h: #08060d;
+  --bg: #fff;
+  --border: #e5e4e7;
+  --code-bg: #f4f3ec;
+  --accent: #aa3bff;
+  --accent-bg: rgba(170, 59, 255, 0.1);
+  --accent-border: rgba(170, 59, 255, 0.5);
+  --social-bg: rgba(244, 243, 236, 0.5);
+  --shadow:
+    rgba(0, 0, 0, 0.1) 0 10px 15px -3px, rgba(0, 0, 0, 0.05) 0 4px 6px -2px;
 
-  /* Text & Typography */
-  --text-primary: #20211F;        /* Near-black */
-  --text-secondary: #777970;      /* Muted technical grey */
-  --text-dim: #9C9E94;          /* Dim secondary details */
-  --text-inverse: #FFFFFF;
+  --sans: system-ui, 'Segoe UI', Roboto, sans-serif;
+  --heading: system-ui, 'Segoe UI', Roboto, sans-serif;
+  --mono: ui-monospace, Consolas, monospace;
 
-  /* Editorial Accents */
-  --accent-orange: #FF5A1F;       /* Electric orange primary action */
-  --accent-orange-hover: #E04B14;
-  --accent-orange-subtle: rgba(255, 90, 31, 0.08);
-  --accent-orange-border: rgba(255, 90, 31, 0.3);
-
-  --accent-cobalt: #315BDB;       /* Cobalt blue secondary accent */
-  --accent-cobalt-hover: #2649B8;
-  --accent-cobalt-subtle: rgba(49, 91, 219, 0.08);
-
-  /* Status Colors */
-  --status-success: #1B7F48;      /* Restrained forest green */
-  --status-success-bg: rgba(27, 127, 72, 0.08);
-  --status-success-border: rgba(27, 127, 72, 0.25);
-
-  --status-error: #D92D20;        /* Clear red with readable contrast */
-  --status-error-bg: rgba(217, 45, 32, 0.08);
-  --status-error-border: rgba(217, 45, 32, 0.25);
-
-  --status-warning: #D97706;      /* Technical amber */
-  --status-warning-bg: rgba(217, 119, 6, 0.08);
-  --status-warning-border: rgba(217, 119, 6, 0.25);
-
-  /* Borders & Grid */
-  --border-subtle: #E4E1D9;       /* Subtle warm grey */
-  --border-medium: #D5D1C7;       /* Mid border */
-  --border-strong: #20211F;       /* Crisp industrial focal border */
-  --canvas-dot: #DDD9CD;          /* Delicate blueprint grid dot */
-
-  /* Font Families */
-  --font-display: 'Space Grotesk', -apple-system, BlinkMacSystemFont, sans-serif;
-  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  --font-mono: 'JetBrains Mono', 'SF Mono', Consolas, monospace;
-
-  /* Shadows (Restrained, crisp 1-pixel borders preferred) */
-  --shadow-sm: 0 1px 3px rgba(32, 33, 31, 0.04);
-  --shadow-md: 0 4px 12px rgba(32, 33, 31, 0.06);
-  --shadow-lg: 0 8px 24px rgba(32, 33, 31, 0.08);
-  --shadow-modal: 0 16px 48px rgba(32, 33, 31, 0.14);
-
-  /* Layout Dimensions */
-  --nav-rail-width: 58px;
-  --header-height: 52px;
-  --sidebar-width: 270px;
-  --inspector-width: 340px;
-}
-
-/* Reset & Box Sizing */
-*, *::before, *::after {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
-}
-
-html, body, #root {
-  width: 100%;
-  height: 100%;
-  overflow: hidden;
-  background-color: var(--bg-canvas);
-  color: var(--text-primary);
-  font-family: var(--font-sans);
-  font-size: 13px;
-  line-height: 1.5;
+  font: 18px/145% var(--sans);
+  letter-spacing: 0.18px;
+  color-scheme: light dark;
+  color: var(--text);
+  background: var(--bg);
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-}
 
-/* Typography styles */
-h1, h2, h3, h4, .font-display {
-  font-family: var(--font-display);
-  font-weight: 700;
-  letter-spacing: -0.02em;
-  color: var(--text-primary);
-}
-
-.font-mono {
-  font-family: var(--font-mono);
-}
-
-/* Custom Minimalist Scrollbars */
-::-webkit-scrollbar {
-  width: 5px;
-  height: 5px;
-}
-::-webkit-scrollbar-track {
-  background: transparent;
-}
-::-webkit-scrollbar-thumb {
-  background: var(--border-medium);
-  border-radius: 2px;
-}
-::-webkit-scrollbar-thumb:hover {
-  background: var(--text-dim);
-}
-
-/* Buttons */
-button {
-  font-family: inherit;
-  cursor: pointer;
-  border: none;
-  outline: none;
-  background: none;
-  color: inherit;
-  transition: all 0.15s cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-button:disabled {
-  cursor: not-allowed;
-  opacity: 0.5;
-}
-
-/* Input, Textarea, Select */
-input, textarea, select {
-  font-family: inherit;
-  font-size: 13px;
-  color: var(--text-primary);
-  background: #FFFFFF;
-  border: 1px solid var(--border-subtle);
-  border-radius: 4px;
-  padding: 7px 10px;
-  outline: none;
-  transition: border-color 0.15s ease, box-shadow 0.15s ease;
-}
-
-input:focus, textarea:focus, select:focus {
-  border-color: var(--text-primary);
-  box-shadow: 0 0 0 1px var(--text-primary);
-}
-
-textarea {
-  resize: vertical;
-}
-
-/* Industrial Blueprint Badges */
-.badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  font-family: var(--font-mono);
-  font-size: 10px;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  padding: 2px 6px;
-  border-radius: 3px;
-  border: 1px solid transparent;
-}
-
-.badge-idle {
-  background: #F0ECE1;
-  color: var(--text-secondary);
-  border-color: var(--border-subtle);
-}
-
-.badge-running {
-  background: var(--accent-cobalt-subtle);
-  color: var(--accent-cobalt);
-  border-color: rgba(49, 91, 219, 0.2);
-}
-
-.badge-completed {
-  background: var(--status-success-bg);
-  color: var(--status-success);
-  border-color: var(--status-success-border);
-}
-
-.badge-failed {
-  background: var(--status-error-bg);
-  color: var(--status-error);
-  border-color: var(--status-error-border);
-}
-
-.badge-skipped {
-  background: #F4F1E8;
-  color: var(--text-dim);
-  border-color: var(--border-subtle);
-}
-
-/* Button Variants */
-.btn-primary {
-  background: var(--accent-orange);
-  color: #FFFFFF;
-  font-weight: 600;
-  padding: 8px 14px;
-  border-radius: 4px;
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  box-shadow: 0 1px 2px rgba(255, 90, 31, 0.2);
-}
-.btn-primary:hover {
-  background: var(--accent-orange-hover);
-}
-
-.btn-secondary {
-  background: #FFFFFF;
-  color: var(--text-primary);
-  border: 1px solid var(--border-subtle);
-  font-weight: 500;
-  padding: 7px 12px;
-  border-radius: 4px;
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-}
-.btn-secondary:hover {
-  background: var(--bg-panel-subtle);
-  border-color: var(--border-medium);
-}
-
-.btn-cobalt {
-  background: var(--accent-cobalt);
-  color: #FFFFFF;
-  font-weight: 600;
-  padding: 8px 14px;
-  border-radius: 4px;
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-}
-.btn-cobalt:hover {
-  background: var(--accent-cobalt-hover);
-}
-
-.btn-icon {
-  width: 32px;
-  height: 32px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 4px;
-  color: var(--text-secondary);
-}
-.btn-icon:hover {
-  background: var(--bg-active);
-  color: var(--text-primary);
-}
-
-/* React Flow Custom Overrides for Swiss Industrial Theme */
-.react-flow__background {
-  background-color: var(--bg-canvas) !important;
-}
-
-.react-flow__controls {
-  border: 1px solid var(--border-subtle) !important;
-  border-radius: 4px !important;
-  box-shadow: var(--shadow-sm) !important;
-  background: #FFFFFF !important;
-  overflow: hidden;
-}
-
-.react-flow__controls-button {
-  background: #FFFFFF !important;
-  border-bottom: 1px solid var(--border-subtle) !important;
-  color: var(--text-primary) !important;
-  fill: var(--text-primary) !important;
-  width: 28px !important;
-  height: 28px !important;
-}
-
-.react-flow__controls-button:hover {
-  background: var(--bg-panel-subtle) !important;
-}
-
-.react-flow__minimap {
-  border: 1px solid var(--border-subtle) !important;
-  background: #FFFFFF !important;
-  border-radius: 4px !important;
-  box-shadow: var(--shadow-sm) !important;
-}
-
-/* Connection Line & Handles */
-.react-flow__handle {
-  width: 10px !important;
-  height: 10px !important;
-  background: #FFFFFF !important;
-  border: 2px solid var(--border-strong) !important;
-  border-radius: 2px !important;
-  transition: transform 0.15s ease, background 0.15s ease;
-}
-
-.react-flow__handle:hover {
-  transform: scale(1.3);
-  background: var(--accent-orange) !important;
-  border-color: var(--accent-orange) !important;
-}
-
-.react-flow__handle-top, .react-flow__handle-bottom {
-  left: 50% !important;
-}
-
-/* Edge styling */
-.react-flow__edge-path {
-  stroke: var(--border-medium) !important;
-  stroke-width: 1.5 !important;
-}
-
-.react-flow__edge.selected .react-flow__edge-path {
-  stroke: var(--accent-orange) !important;
-  stroke-width: 2 !important;
-}
-
-.react-flow__edge.executing .react-flow__edge-path {
-  stroke: var(--accent-orange) !important;
-  stroke-dasharray: 5, 5;
-  animation: edgeFlow 1s linear infinite;
-}
-
-@keyframes edgeFlow {
-  from {
-    stroke-dashoffset: 20;
-  }
-  to {
-    stroke-dashoffset: 0;
+  @media (max-width: 1024px) {
+    font-size: 16px;
   }
 }
 
-/* Toast Container */
-.nodeflow-toast-container {
-  position: fixed;
-  bottom: 24px;
-  right: 24px;
-  z-index: 9999;
+@media (prefers-color-scheme: dark) {
+  :root {
+    --text: #9ca3af;
+    --text-h: #f3f4f6;
+    --bg: #16171d;
+    --border: #2e303a;
+    --code-bg: #1f2028;
+    --accent: #c084fc;
+    --accent-bg: rgba(192, 132, 252, 0.15);
+    --accent-border: rgba(192, 132, 252, 0.5);
+    --social-bg: rgba(47, 48, 58, 0.5);
+    --shadow:
+      rgba(0, 0, 0, 0.4) 0 10px 15px -3px, rgba(0, 0, 0, 0.25) 0 4px 6px -2px;
+  }
+
+  #social .button-icon {
+    filter: invert(1) brightness(2);
+  }
+}
+
+#root {
+  width: 1126px;
+  max-width: 100%;
+  margin: 0 auto;
+  text-align: center;
+  border-inline: 1px solid var(--border);
+  min-height: 100svh;
   display: flex;
   flex-direction: column;
-  gap: 8px;
-  pointer-events: none;
+  box-sizing: border-box;
 }
 
-.nodeflow-toast {
-  pointer-events: auto;
-  min-width: 280px;
-  max-width: 420px;
-  background: #FFFFFF;
-  border: 1px solid var(--border-subtle);
-  border-left: 4px solid var(--accent-orange);
-  padding: 10px 14px;
+body {
+  margin: 0;
+}
+
+h1,
+h2 {
+  font-family: var(--heading);
+  font-weight: 500;
+  color: var(--text-h);
+}
+
+h1 {
+  font-size: 56px;
+  letter-spacing: -1.68px;
+  margin: 32px 0;
+  @media (max-width: 1024px) {
+    font-size: 36px;
+    margin: 20px 0;
+  }
+}
+h2 {
+  font-size: 24px;
+  line-height: 118%;
+  letter-spacing: -0.24px;
+  margin: 0 0 8px;
+  @media (max-width: 1024px) {
+    font-size: 20px;
+  }
+}
+p {
+  margin: 0;
+}
+
+code,
+.counter {
+  font-family: var(--mono);
+  display: inline-flex;
   border-radius: 4px;
-  box-shadow: var(--shadow-md);
-  display: flex;
-  align-items: flex-start;
-  gap: 10px;
-  animation: toastSlideIn 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  color: var(--text-h);
 }
 
-.nodeflow-toast.toast-success {
-  border-left-color: var(--status-success);
-}
-
-.nodeflow-toast.toast-error {
-  border-left-color: var(--status-error);
-}
-
-.nodeflow-toast.toast-info {
-  border-left-color: var(--accent-cobalt);
-}
-
-@keyframes toastSlideIn {
-  from {
-    transform: translateY(16px);
-    opacity: 0;
-  }
-  to {
-    transform: translateY(0);
-    opacity: 1;
-  }
-}
-
-/* Print/Reduced Motion Accessibility */
-@media (prefers-reduced-motion: reduce) {
-  *, *::before, *::after {
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
-    scroll-behavior: auto !important;
-  }
+code {
+  font-size: 15px;
+  line-height: 135%;
+  padding: 4px 8px;
+  background: var(--code-bg);
 }

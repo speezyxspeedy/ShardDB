@@ -1,222 +1,225 @@
-# NodeFlow — Visual Workflow Automation Platform
-> **Day 20/365** | Local-First Visual Automation Platform with Python DAG Execution Engine
+# DockSight ⚓
+### Docker Environment Inspector & DevOps Diagnostics Platform
 
-NodeFlow is a visual workflow automation platform designed with a distinctive **“Swiss Editorial meets Industrial Blueprint”** aesthetic. Connect nodes on a dotted blueprint grid, configure data pipelines, route execution through conditional logic, and execute workflows locally using a real Python FastAPI backend engine with SQLite persistence, cycle detection, and step-by-step auditing.
+**DockSight** is a developer tool and observability workstation designed to inspect Docker environments, visualize Docker Compose projects, diagnose configuration anomalies through static analysis, and explore real-time container logs.
 
----
-
-## 1. Product Vision & Architecture
-
-NodeFlow enables users to author and execute multi-step automated workflows without writing boilerplate code or requiring external cloud subscriptions.
-
-```mermaid
-graph LR
-    subgraph Frontend ["React + TypeScript + Vite (@xyflow/react)"]
-        UI[Canvas & Blueprint Nodes]
-        Inspector[Configuration Inspector]
-        Console[Execution Console & Live Logs]
-    end
-
-    subgraph Backend ["Python FastAPI Engine"]
-        API[REST Endpoints & Validation]
-        Engine[DAG Engine & Cycle Detection]
-        Registry[Local Node Registry - Zero eval]
-    end
-
-    subgraph Database ["SQLite + SQLAlchemy"]
-        WFs[(workflows)]
-        Execs[(executions)]
-        Steps[(execution_steps)]
-    end
-
-    UI -->|JSON Graph| API
-    API --> Engine
-    Engine --> Registry
-    Engine -->|Results & Logs| Execs
-    Engine -->|Step Audit| Steps
-    API --> WFs
-    Execs --> Console
-```
+Built with an **"Industrial DevOps Workstation"** design aesthetic, DockSight provides developer ergonomics, strict security safeguards (automatic credential redaction, localhost binding, destructive action confirmation), and complete offline analysis capability when the Docker Engine daemon is offline.
 
 ---
 
-## 2. Art Direction: “Swiss Editorial meets Industrial Blueprint”
+## 📸 Interface Preview & Workstation Views
 
-- **Main background:** Warm ivory (`#F7F5EF`)
-- **Workspace panels:** Crisp white (`#FFFFFF`) with 1-pixel borders (`#E4E1D9`)
-- **Primary text:** Near-black (`#20211F`)
-- **Secondary text:** Muted technical grey (`#777970`)
-- **Accents:** Electric orange (`#FF5A1F`) and Cobalt blue (`#315BDB`)
-- **Status indicators:** Restrained forest green (`#1B7F48`) and clear red (`#D92D20`)
-- **Typography:** Sans-serif interface (`Inter`), bold editorial display headings (`Space Grotesk`), and monospace node tags & log streams (`JetBrains Mono`).
+| Overview & Health Telemetry | ComposeCraft Dependency Graph |
+|---|---|
+| ![Overview](file:///C:/Users/speedy/.gemini/antigravity-ide/brain/0bfa6975-9cf6-42aa-a344-524ff6379b24/overview_page_1792941744502.png) | ![Compose Graph](file:///C:/Users/speedy/.gemini/antigravity-ide/brain/0bfa6975-9cf6-42aa-a344-524ff6379b24/compose_projects_page_1792941817425.png) |
 
----
-
-## 3. Core Features
-
-### A. Visual Workflow Editor (Canvas)
-- **React Flow Canvas**: Drag-and-drop node placement on a dotted blueprint grid (`#DDD9CD`).
-- **Technical Cards**: Headers with category tags (`[TRIGGER]`, `[INPUT]`, `[LOGIC]`, `[TRANSFORM]`, `[OUTPUT]`), custom icons, status badges (`IDLE`, `RUNNING`, `COMPLETED`, `FAILED`, `SKIPPED`), and handle ports.
-- **Dedicated Condition Handles**: True (`green`) and False (`red`) branches with explicit routing tags.
-- **Right Configuration Inspector**: Slide-out panel for live node parameter configuration and validation.
-- **Bottom Execution Console**: Tabbed drawer with real-time logs, step-by-step timeline inspector, and copyable JSON output.
-- **Undo / Redo & Validation**: Graph history undo/redo (`Ctrl+Z` / `Ctrl+Y`) and instant DAG cycle validation.
-
-### B. Workflow Dashboard
-- **Summary Metrics**: Live database statistics for total workflows, total executions, success rate %, and average latency.
-- **Filter & Search**: Full-text search and category filter pills (`Transform`, `Logic`, `Customer Ops`, `Finance`).
-- **Actions**: Create new blueprint, Quick Run directly against backend, Duplicate (`/duplicate`), and Delete with confirmation.
-
-### C. Execution History
-- **Audit Log**: Every workflow run is permanently stored in SQLite with start time, completion time, duration ms, and status.
-- **Step Breakdown**: Inspect the exact inputs, outputs, branch decisions, and errors for every node executed in the DAG.
-- **Cancellation**: Safe cancellation endpoint for queued/running executions.
+| Container Explorer & Redaction | DockSight Doctor Diagnostics |
+|---|---|
+| ![Container Details](file:///C:/Users/speedy/.gemini/antigravity-ide/brain/0bfa6975-9cf6-42aa-a344-524ff6379b24/container_details_panel_1792941784732.png) | ![Diagnostics Scan](file:///C:/Users/speedy/.gemini/antigravity-ide/brain/0bfa6975-9cf6-42aa-a344-524ff6379b24/diagnostics_filtered_1792941940028.png) |
 
 ---
 
-## 4. Node Library (Local-First, Zero eval)
+## ⚡ Key Capabilities
 
-1. **Manual Trigger**: Starts workflow on demand with runtime ISO-8601 timestamp.
-   ```json
-   {
-     "trigger": "manual",
-     "timestamp": "2026-10-24T18:42:00Z",
-     "payload": { "manual_run": true }
-   }
-   ```
-2. **Text Input**: Configurable text field with variable naming and required field validation.
-3. **Condition**: Evaluates `equals`, `not_equals`, `contains`, `not_contains`, `greater_than`, `less_than`, `is_empty`, or `is_not_empty` and routes down `True` or `False` handles.
-4. **Text Transform**: Applies text modifications: `uppercase`, `lowercase`, `trim`, `replace`, `split_lines`, `slugify`, `capitalize`.
-5. **Delay**: Configurable pause between operations strictly capped at a 5.0 second safety limit.
-6. **Output**: Terminal node displaying final structured results with 1-click JSON clipboard copy.
-7. **Notification Simulator**: Resolves dynamic variables (`{{text}}`, `{{timestamp}}`) and logs simulated dispatch receipts without external network dependencies.
-8. **Mock API**: Local simulated REST endpoints (Users, Orders, Weather, Stocks).
-9. **Sentiment Classifier**: Zero-dependency local lexicon sentiment scoring (Positive, Neutral, Negative).
-10. **Math Operation**: Safe arithmetic calculations (+, -, *, /, %, round).
+### 1. Engine & Runtime Observability
+- Real-time connection probe using platform-native transports (Windows named pipe `npipe:////./pipe/docker_engine` and Unix domain socket `unix:///var/run/docker.sock`).
+- Clear distinction between live Docker daemon data and the offline **Demo Sandbox**.
+- Engine version, API version, operating system, architecture, and live container state breakdown.
+
+### 2. Container Explorer & Lifecycle Controls
+- Compact, dense table displaying container names, short IDs, image tags, status badges, published port bindings, and creation timestamps.
+- Status filters (`All`, `Running`, `Exited`) and multi-field search (name, ID, image).
+- Safe lifecycle management: `start`, `stop`, and `restart`. Potentially disruptive actions require explicit confirmation via accessible dialogs.
+- Right-side slide-over details panel featuring **automatic secret redaction** for sensitive environment variables (passwords, tokens, API keys, database credentials).
+
+### 3. Image Explorer & Layer Auditing
+- Lists local images with formatted storage footprint (KB, MB, GB), repository tags, and creation dates.
+- Image inspection slide-over detailing base image metadata, Dockerfile commands, entrypoints, labels, and 15-tier layer history.
+
+### 4. ComposeCraft — Visual Compose Explorer
+- Full YAML editor with syntax checking and template loaders (`Microservices`, `Clean Basic`).
+- Local Compose file import (`.yml`, `.yaml`) and validated YAML export.
+- Interactive dependency graph powered by **React Flow** (`@xyflow/react`):
+  - Custom service node cards showing service name, base image/build context, published ports, dependency counts, and warning counters.
+  - Directional dependency edges derived from `depends_on`.
+  - Distinguishes valid dependencies from **broken/missing dependency references** with red dashed edges and phantom error nodes.
+  - Clicking any service node opens the Service Configuration inspector.
+
+### 5. DockSight Doctor — Static Configuration Diagnostics
+- 18 static analysis rules for Docker Compose specifications:
+  - `DOCK-001-YAML-SYNTAX`: Invalid YAML syntax or indentation errors.
+  - `DOCK-003-NO-SERVICES`: Missing `services` declaration.
+  - `DOCK-007-NO-IMAGE-OR-BUILD`: Service without `image` or `build` context.
+  - `DOCK-008-LATEST-TAG`: Floating or omitted image tag reproducibility risks.
+  - `DOCK-009-MISSING-DEPENDENCY`: Service depends on an undeclared target.
+  - `DOCK-010-CIRCULAR-SELF-DEPENDENCY`: Service declaring circular dependency on itself.
+  - `DOCK-011-PORT-CONFLICT`: Host port collisions across multiple services.
+  - `DOCK-012-SENSITIVE-PORT`: Exposure of sensitive ports (22, 3306, 5432, 6379, 27017, 2375).
+  - `DOCK-013-HARDCODED-SECRET`: Plaintext secrets in `environment` variables.
+  - `DOCK-014-PRIVILEGED-MODE`: Risky `privileged: true` host bypasses.
+  - `DOCK-015-DANGEROUS-MOUNT`: Mounting `/var/run/docker.sock` or host root directories.
+  - `DOCK-016-MISSING-HEALTHCHECK`: Unchecked stateful dependency services.
+  - `DOCK-017-MISSING-RESTART-POLICY`: Unset restart policies for services.
+  - `DOCK-018-ENV-FILE-REFERENCE`: External environment file auditing.
+- Severity classification (`error`, `warning`, `info`) with remediation guidance.
+
+### 6. Log Explorer & Stream Classification
+- Log retrieval through the Docker SDK with configurable tail buffers (50, 100, 250, 500 lines).
+- Stream classification into `[STDOUT]` and `[STDERR]` with ISO timestamp parsing.
+- Real-time text search and log filtering.
+- Controlled auto-refresh (off by default; user-activated 3s intervals).
+- One-click copy to clipboard and `.txt` file export.
+
+### 7. Collapsible DevOps Inspection Console
+- Docked bottom console logging all background API calls, inspection events, and diagnostic warnings in real time.
 
 ---
 
-## 5. Starter Blueprints Included
+## 🛠️ Technology Stack
 
-- **A. Text Processor**: `Manual Trigger` → `Text Input` → `Text Transform` (uppercase/slugify) → `Terminal Output`
-- **B. Conditional Router**: `Manual Trigger` → `Text Input` → `Condition Router` → `True Output` / `False Output`
-- **C. Message Generator**: `Manual Trigger` → `Text Input` → `Text Transform` → `Notification Simulator` → `Terminal Output`
-- **D. Customer Sentiment Pipeline**: `Manual Trigger` → `Text Input` → `Sentiment Analyzer` → `Condition` → `Slack Praise` / `Escalation`
+| Layer | Technologies |
+|---|---|
+| **Frontend** | React 19, TypeScript, Vite, React Flow (`@xyflow/react`), Lucide React, Custom CSS Design System |
+| **Backend** | Python 3.11+, FastAPI, Uvicorn, Docker SDK for Python (`docker`), PyYAML, Pydantic v2 |
+| **Testing** | pytest, pytest-asyncio, HTTPX, unittest.mock, Vite build verification |
+| **Security** | 127.0.0.1 localhost binding, regex credential redaction, strict 2MB upload limits, CORS lockdown |
 
 ---
 
-## 6. Installation & Quickstart (Windows 11 & Cross-Platform)
+## 🚀 Setup & Execution Instructions (Windows 11)
 
 ### Prerequisites
-- Python 3.10+ (Tested on Python 3.14)
-- Node.js 18+ and npm
+- Python 3.11+
+- Node.js v20+ and npm
+- (Optional) Docker Desktop for Windows
 
-### Step 1: Clone and Enter Project
+### Step 1: Clone and Navigate
 ```powershell
 cd c:\Users\speedy\Desktop\DAY4
 ```
 
-### Step 2: Backend Setup
+### Step 2: Setup Python Virtual Environment & Backend
 ```powershell
-# Navigate to backend directory
-cd backend
+# Create virtual environment
+python -m venv backend/venv
 
-# Install dependencies (FastAPI, Uvicorn, SQLAlchemy, Pydantic, pytest)
-pip install -r requirements.txt
+# Activate virtual environment
+.\backend\venv\Scripts\Activate.ps1
 
-# Return to workspace root
-cd ..
+# Install backend dependencies
+pip install -r backend/requirements.txt
 ```
 
-### Step 3: Frontend Setup
+### Step 3: Setup Frontend Dependencies
 ```powershell
-# Navigate to frontend directory
 cd frontend
-
-# Install dependencies
 npm install
-
-# Return to workspace root
 cd ..
 ```
 
----
-
-## 7. Running the Application
-
-Open two PowerShell windows:
-
-### Terminal 1: Start Backend Engine
+### Step 4: Start the FastAPI Backend Server
 ```powershell
-cd c:\Users\speedy\Desktop\DAY4
-python -m uvicorn backend.main:app --host 127.0.0.1 --port 8000 --reload
+# Runs on http://127.0.0.1:8000
+.\backend\venv\Scripts\python.exe -m uvicorn app.main:app --app-dir backend --host 127.0.0.1 --port 8000 --reload
 ```
-*Backend runs on `http://127.0.0.1:8000` (API docs at `http://127.0.0.1:8000/docs`).*
 
-### Terminal 2: Start Frontend Dev Server
+### Step 5: Start the Vite Development Server (in a new terminal)
 ```powershell
-cd c:\Users\speedy\Desktop\DAY4\frontend
-npm run dev
+cd frontend
+npm run dev -- --host 127.0.0.1 --port 5173
 ```
-*Frontend runs on `http://localhost:5173`.*
+Open **[http://127.0.0.1:5173](http://127.0.0.1:5173)** in your browser.
 
 ---
 
-## 8. Running Automated Tests
+## 🧪 Running Tests
 
-Run the complete backend test suite covering CRUD, DAG validation, cycles, branching, and error handling:
+All automated tests use mocked Docker clients and do **not** require a running Docker daemon.
+
+### Backend Test Suite (pytest)
 ```powershell
-cd c:\Users\speedy\Desktop\DAY4
-python -m pytest backend/tests -v
+.\backend\venv\Scripts\pytest.exe backend\tests -v
+```
+**Test Results:**
+```
+collected 14 items
+backend/tests/test_compose_and_diagnostics.py::test_valid_compose_validation PASSED
+backend/tests/test_compose_and_diagnostics.py::test_invalid_yaml_syntax PASSED
+backend/tests/test_compose_and_diagnostics.py::test_missing_dependency_detected PASSED
+backend/tests/test_compose_and_diagnostics.py::test_port_conflict_detection PASSED
+backend/tests/test_compose_and_diagnostics.py::test_security_rules_privileged_and_mounts_and_secrets PASSED
+backend/tests/test_compose_and_diagnostics.py::test_file_upload_size_limit PASSED
+backend/tests/test_containers_and_images.py::test_containers_list_mocked PASSED
+backend/tests/test_containers_and_images.py::test_container_inspect_redaction PASSED
+backend/tests/test_containers_and_images.py::test_container_action_confirmation_required PASSED
+backend/tests/test_containers_and_images.py::test_images_list_mocked PASSED
+backend/tests/test_health_and_docker.py::test_health_endpoint PASSED
+backend/tests/test_health_and_docker.py::test_docker_status_disconnected PASSED
+backend/tests/test_health_and_docker.py::test_docker_status_connected PASSED
+backend/tests/test_health_and_docker.py::test_demo_endpoints PASSED
+======================= 14 passed in 0.37s ========================
 ```
 
-Run frontend build verification:
+### Frontend Production Build Verification
 ```powershell
-cd c:\Users\speedy\Desktop\DAY4\frontend
+cd frontend
 npm run build
 ```
+**Build Results:**
+```
+✓ 2105 modules transformed.
+dist/index.html                   1.21 kB │ gzip:   0.65 kB
+dist/assets/index-C68TubcW.css   27.12 kB │ gzip:   5.07 kB
+dist/assets/index-BlM0pfnJ.js   480.80 kB │ gzip: 146.00 kB
+✓ built in 1.96s with 0 errors
+```
 
 ---
 
-## 9. API Endpoint Reference
+## 🔒 Security Model & Architectural Safeguards
+
+1. **Host-Level Binding:** The FastAPI application binds exclusively to `127.0.0.1`, preventing exposure to external networks.
+2. **No Arbitrary Shell Execution:** The backend does not expose container command execution (`exec`), arbitrary bash commands, or raw terminal spawning.
+3. **Environment Variable Redaction:** Any variable key or value containing sensitive patterns (e.g., `PASSWORD`, `SECRET`, `TOKEN`, `KEY`, `DATABASE_URL`, AWS access keys) is masked prior to sending data to the browser.
+4. **Destructive Action Guards:** Stopping or restarting containers requires explicit user confirmation.
+5. **Safe File Handling:** Compose file imports are limited to a maximum size of 2MB and verified for UTF-8 encoding.
+6. **No Auto-Execution:** Imported Compose YAML documents are parsed and statically checked; they are never automatically deployed or pulled.
+
+---
+
+## 📚 API Reference
 
 | Method | Endpoint | Description |
 |---|---|---|
-| `GET` | `/api/health` | Health check endpoint |
-| `GET` | `/api/stats` | System metrics from database (workflows, runs, success rate) |
-| `GET` | `/api/nodes/definitions` | Catalog of all registered node types |
-| `GET` | `/api/templates` | List pre-built starter workflow templates |
-| `POST` | `/api/templates/{id}/instantiate` | Clone starter template into user workflow |
-| `GET` | `/api/workflows` | List workflows (supports `?q=` search and `?category=`) |
-| `POST` | `/api/workflows` | Create a new workflow |
-| `GET` | `/api/workflows/{id}` | Get workflow by ID |
-| `PUT` | `/api/workflows/{id}` | Update workflow name, description, or graph |
-| `DELETE` | `/api/workflows/{id}` | Delete workflow from database |
-| `POST` | `/api/workflows/{id}/duplicate` | Duplicate an existing workflow with copy suffix |
-| `POST` | `/api/workflows/{id}/execute` | Execute a saved workflow by ID |
-| `POST` | `/api/workflows/execute-adhoc` | Execute an ad-hoc canvas graph directly |
-| `POST` | `/api/workflows/validate` | Validate DAG structure, trigger presence, and cycles |
-| `GET` | `/api/executions` | List execution history (supports `?status=` and `?workflow_id=`) |
-| `GET` | `/api/executions/{id}` | Get detailed execution audit trace with step I/O |
-| `POST` | `/api/executions/{id}/cancel` | Safely cancel an active execution |
-| `DELETE` | `/api/executions/{id}` | Delete execution record |
-| `DELETE` | `/api/executions` | Clear all execution history |
+| `GET` | `/api/health` | Application health check distinguishing app status from Docker daemon status |
+| `GET` | `/api/docker/status` | Current Docker Engine connection telemetry, version, and container counts |
+| `GET` | `/api/containers` | Lists live or demo containers with status and port mappings |
+| `GET` | `/api/containers/{id}` | Inspects detailed container state, mounts, networks, and redacted env |
+| `POST` | `/api/containers/{id}/action` | Executes safe container actions (`start`, `stop`, `restart`) |
+| `GET` | `/api/containers/{id}/logs` | Fetches container log lines with tail limit and stream parsing |
+| `GET` | `/api/images` | Lists cached local images and sizes |
+| `GET` | `/api/images/{id}` | Inspects image metadata and layer history |
+| `POST` | `/api/compose/validate` | Validates Compose YAML, extracts topology, builds graph, and runs diagnostics |
+| `POST` | `/api/compose/upload` | Multipart file upload with size limit validation |
+| `GET` | `/api/compose/samples` | Built-in sample Compose templates |
+| `POST` | `/api/diagnostics/analyze` | Static configuration linting against 18 rules |
+| `GET` | `/api/demo/*` | Dedicated sample data endpoints for offline sandbox mode |
 
 ---
 
-## 10. Reliability, Security & Design Decisions
+## 💡 Troubleshooting & Known Limitations
 
-1. **Zero `eval()` or `exec()`**: User inputs and formulas are processed strictly via deterministic Python functions and AST mathematical parsing. No arbitrary code execution is allowed.
-2. **Kahn's DAG Cycle Detection**: Workflows are checked for cycles before execution. Any circular dependency is rejected with a clear explanation.
-3. **Mandatory Trigger Verification**: Every executable workflow requires at least one trigger node.
-4. **Conditional Routing Isolation**: Inactive conditional branches are strictly skipped during execution; skipped nodes do not execute and downstream nodes are skipped accordingly.
-5. **Safe Delays**: Delay durations are validated and strictly capped at 5.0 seconds maximum.
-6. **Notification Simulator Integrity**: Simulation nodes explicitly tag payloads with disclaimer headers so simulated alerts are never mistaken for real outbound network dispatches.
+### Windows 11 Docker Named Pipe
+If Docker Desktop is running on Windows 11 but DockSight reports `Disconnected`:
+1. Open Docker Desktop > Settings > Advanced.
+2. Verify that **Enable default Docker socket** or named pipe is checked.
+3. Check permissions in PowerShell: `Test-Path //./pipe/docker_engine`.
+4. Ensure your user account is in the `docker-users` local group: `net localgroup docker-users`.
+
+### Offline / Air-Gapped Mode
+If Docker is not installed on the workstation, DockSight starts without errors. Click **Explore Demo Sandbox** in the top bar or sidebar to inspect simulated microservices, logs, and container states.
 
 ---
 
-## 11. Known Limitations & Future Improvements
-
-- **Scheduled & Cron Triggers**: Currently workflows are triggered manually or via ad-hoc testing. Background cron scheduling is a planned extension.
-- **Sub-Workflows**: Future versions can introduce a Sub-Workflow node that encapsulates another workflow graph as a single reusable block.
-- **Multi-user Authentication**: Intended as a local-first single-user developer tool; production multi-tenant deployment would require user auth layers (JWT/OAuth2).
+## ⚖️ License
+Released under the MIT License. Developed for professional DevOps engineering and container observability.
