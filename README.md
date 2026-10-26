@@ -1,225 +1,235 @@
-# DockSight ⚓
-### Docker Environment Inspector & DevOps Diagnostics Platform
+# QueryLens 🔬
+### Interactive SQL Playground, Query Plan Visualizer & Performance Optimizer
 
-**DockSight** is a developer tool and observability workstation designed to inspect Docker environments, visualize Docker Compose projects, diagnose configuration anomalies through static analysis, and explore real-time container logs.
-
-Built with an **"Industrial DevOps Workstation"** design aesthetic, DockSight provides developer ergonomics, strict security safeguards (automatic credential redaction, localhost binding, destructive action confirmation), and complete offline analysis capability when the Docker Engine daemon is offline.
+**QueryLens** is an interactive developer tool and learning workstation designed for exploring, debugging, and optimizing SQLite database queries. It brings SQLite execution mechanics to life with connected query plan graphs, automated full-table scan detectors, plain-language operational explanations, and instant before/after indexing comparisons.
 
 ---
 
-## 📸 Interface Preview & Workstation Views
+## 🌌 Art Direction: "Graphite Observatory"
 
-| Overview & Health Telemetry | ComposeCraft Dependency Graph |
-|---|---|
-| ![Overview](file:///C:/Users/speedy/.gemini/antigravity-ide/brain/0bfa6975-9cf6-42aa-a344-524ff6379b24/overview_page_1792941744502.png) | ![Compose Graph](file:///C:/Users/speedy/.gemini/antigravity-ide/brain/0bfa6975-9cf6-42aa-a344-524ff6379b24/compose_projects_page_1792941817425.png) |
-
-| Container Explorer & Redaction | DockSight Doctor Diagnostics |
-|---|---|
-| ![Container Details](file:///C:/Users/speedy/.gemini/antigravity-ide/brain/0bfa6975-9cf6-42aa-a344-524ff6379b24/container_details_panel_1792941784732.png) | ![Diagnostics Scan](file:///C:/Users/speedy/.gemini/antigravity-ide/brain/0bfa6975-9cf6-42aa-a344-524ff6379b24/diagnostics_filtered_1792941940028.png) |
-
----
-
-## ⚡ Key Capabilities
-
-### 1. Engine & Runtime Observability
-- Real-time connection probe using platform-native transports (Windows named pipe `npipe:////./pipe/docker_engine` and Unix domain socket `unix:///var/run/docker.sock`).
-- Clear distinction between live Docker daemon data and the offline **Demo Sandbox**.
-- Engine version, API version, operating system, architecture, and live container state breakdown.
-
-### 2. Container Explorer & Lifecycle Controls
-- Compact, dense table displaying container names, short IDs, image tags, status badges, published port bindings, and creation timestamps.
-- Status filters (`All`, `Running`, `Exited`) and multi-field search (name, ID, image).
-- Safe lifecycle management: `start`, `stop`, and `restart`. Potentially disruptive actions require explicit confirmation via accessible dialogs.
-- Right-side slide-over details panel featuring **automatic secret redaction** for sensitive environment variables (passwords, tokens, API keys, database credentials).
-
-### 3. Image Explorer & Layer Auditing
-- Lists local images with formatted storage footprint (KB, MB, GB), repository tags, and creation dates.
-- Image inspection slide-over detailing base image metadata, Dockerfile commands, entrypoints, labels, and 15-tier layer history.
-
-### 4. ComposeCraft — Visual Compose Explorer
-- Full YAML editor with syntax checking and template loaders (`Microservices`, `Clean Basic`).
-- Local Compose file import (`.yml`, `.yaml`) and validated YAML export.
-- Interactive dependency graph powered by **React Flow** (`@xyflow/react`):
-  - Custom service node cards showing service name, base image/build context, published ports, dependency counts, and warning counters.
-  - Directional dependency edges derived from `depends_on`.
-  - Distinguishes valid dependencies from **broken/missing dependency references** with red dashed edges and phantom error nodes.
-  - Clicking any service node opens the Service Configuration inspector.
-
-### 5. DockSight Doctor — Static Configuration Diagnostics
-- 18 static analysis rules for Docker Compose specifications:
-  - `DOCK-001-YAML-SYNTAX`: Invalid YAML syntax or indentation errors.
-  - `DOCK-003-NO-SERVICES`: Missing `services` declaration.
-  - `DOCK-007-NO-IMAGE-OR-BUILD`: Service without `image` or `build` context.
-  - `DOCK-008-LATEST-TAG`: Floating or omitted image tag reproducibility risks.
-  - `DOCK-009-MISSING-DEPENDENCY`: Service depends on an undeclared target.
-  - `DOCK-010-CIRCULAR-SELF-DEPENDENCY`: Service declaring circular dependency on itself.
-  - `DOCK-011-PORT-CONFLICT`: Host port collisions across multiple services.
-  - `DOCK-012-SENSITIVE-PORT`: Exposure of sensitive ports (22, 3306, 5432, 6379, 27017, 2375).
-  - `DOCK-013-HARDCODED-SECRET`: Plaintext secrets in `environment` variables.
-  - `DOCK-014-PRIVILEGED-MODE`: Risky `privileged: true` host bypasses.
-  - `DOCK-015-DANGEROUS-MOUNT`: Mounting `/var/run/docker.sock` or host root directories.
-  - `DOCK-016-MISSING-HEALTHCHECK`: Unchecked stateful dependency services.
-  - `DOCK-017-MISSING-RESTART-POLICY`: Unset restart policies for services.
-  - `DOCK-018-ENV-FILE-REFERENCE`: External environment file auditing.
-- Severity classification (`error`, `warning`, `info`) with remediation guidance.
-
-### 6. Log Explorer & Stream Classification
-- Log retrieval through the Docker SDK with configurable tail buffers (50, 100, 250, 500 lines).
-- Stream classification into `[STDOUT]` and `[STDERR]` with ISO timestamp parsing.
-- Real-time text search and log filtering.
-- Controlled auto-refresh (off by default; user-activated 3s intervals).
-- One-click copy to clipboard and `.txt` file export.
-
-### 7. Collapsible DevOps Inspection Console
-- Docked bottom console logging all background API calls, inspection events, and diagnostic warnings in real time.
+QueryLens is styled with the **Graphite Observatory** aesthetic:
+- **Main Background**: `#111418` (Obsidian Deep Space)
+- **Secondary Background**: `#181D23` (Dark Slate Workspace)
+- **Elevated Panels**: `#202730` (Graphite Console)
+- **Borders & Dividers**: `#323B46`
+- **Primary Text**: `#EDF2F7` (Crisp Lunar White)
+- **Secondary Text**: `#98A6B6`
+- **Accents**:
+  - Main Accent: **Ice Blue** (`#56C8F5`)
+  - Secondary Accent: **Electric Violet** (`#A78BFA`)
+  - Warning: **Amber** (`#F4BD50`)
+  - Error / Hazard: **Crimson** (`#FF7373`)
+  - Success: **Emerald** (`#55D6A5`)
+- **Typography**: Interface in clean sans-serif (*Inter*), technical data, queries, execution plans, and IDs in high-readability monospace (*JetBrains Mono*).
 
 ---
 
-## 🛠️ Technology Stack
+## 🛠️ Technology Stack & Versions
 
-| Layer | Technologies |
-|---|---|
-| **Frontend** | React 19, TypeScript, Vite, React Flow (`@xyflow/react`), Lucide React, Custom CSS Design System |
-| **Backend** | Python 3.11+, FastAPI, Uvicorn, Docker SDK for Python (`docker`), PyYAML, Pydantic v2 |
-| **Testing** | pytest, pytest-asyncio, HTTPX, unittest.mock, Vite build verification |
-| **Security** | 127.0.0.1 localhost binding, regex credential redaction, strict 2MB upload limits, CORS lockdown |
+### Frontend
+- **Framework**: React 18.3.1
+- **Language**: TypeScript 5.6.3
+- **Build Tool**: Vite 6.4.5
+- **Editor**: CodeMirror 6 (`@uiw/react-codemirror` 4.23.7, `@codemirror/lang-sql` 6.8.0, `@codemirror/theme-one-dark` 6.1.2)
+- **Query Plan Tree**: React Flow (`@xyflow/react` 12.3.6)
+- **Icons**: Lucide React 0.469.0
+- **SQL Formatter**: `sql-formatter` 15.4.9
+
+### Backend
+- **Language**: Python 3.11+ (tested on Python 3.14.5)
+- **Web Framework**: FastAPI 0.136.3
+- **ASGI Server**: Uvicorn 0.48.0
+- **Data Validation**: Pydantic 2.13.4
+- **Database Engine**: Python's native `sqlite3` (no heavy ORMs, true SQLite-native execution)
+- **SQL Parser**: `sqlparse` 0.6.0
+- **Testing**: `pytest` 8.4.2
 
 ---
 
-## 🚀 Setup & Execution Instructions (Windows 11)
+## 🚀 Key Features
+
+### 1. Database Explorer
+- **Managed Workspace**: Safe sandboxed access to application SQLite databases (`backend/data/databases/`).
+- **Pre-populated Sample Databases**:
+  - `ecommerce.db`: 8,000 orders, 20,000 order items, 1,500 customers, 800 products, 3,000 reviews. Pre-configured with intentional indexing gaps so you can see a 10,000-row table scan and fix it in real-time.
+  - `university.db`: Departments, courses, professors, students, and enrollments for testing multi-table joins, subqueries, and grouping.
+- **Database Management**: Create new custom databases, or reset bundled sample databases to their pristine populated state with one click.
+- **Deep Schema Introspection**: Expand tables to inspect declared columns, data types, primary keys, nullability flags, and index definitions with indexed columns.
+- **Sample Data Preview**: Instant modal previewing real rows from any table with pagination and column typing.
+- **One-Click Index Creator**: "+ Index" helper modal to quickly create an index on any column without writing raw DDL.
+
+### 2. SQL Editor
+- **CodeMirror 6 Worksheets**: Full SQL syntax highlighting, line numbers, automatic bracket closing, and active line glow.
+- **Worksheet Tabs**: Create multiple query tabs (`Worksheet 1`, `Worksheet 2`, ...) without losing unsaved code.
+- **Smart Mode Indicator**: Automatically detects whether a query is `READ-ONLY`, `MUTATION`, or `DESTRUCTIVE`.
+- **Keyboard Shortcuts**:
+  - `Ctrl + Enter` / `Cmd + Enter`: Execute current query
+  - `Ctrl + S` / `Cmd + S`: Save query with title and tags
+  - `Ctrl + Shift + F`: Auto-format SQL with uppercase keywords and standardized indentation
+  - `Ctrl + F`: Search / Find in editor
+
+### 3. Safe Execution Engine
+- **Single-Statement Enforcement**: Blocks multi-statement script injections (e.g. `SELECT 1; DROP TABLE users;`).
+- **PRAGMA Restrictions**: Strictly forbids security-altering PRAGMAs (`writable_schema`, `load_extension`, `cache_spill`). Only safe introspection PRAGMAs are permitted.
+- **Filesystem Isolation**: Forbids `ATTACH`, `DETACH`, and path traversal.
+- **Execution Timeouts**: SQLite virtual machine progress handler interrupts tight loops or runaway queries after 5.0 seconds.
+- **Result Row Limits**: Returns up to 1,000 rows with clear `has_more` indicators to prevent browser crashes on huge datasets.
+- **Transactional Safety**: Write queries run inside explicit transactions (`BEGIN IMMEDIATE`) with automatic rollback on error.
+- **Destructive Operation Confirmations**: Prompts user confirmation for `DROP TABLE`, `DROP INDEX`, or `DELETE` without `WHERE`.
+
+### 4. Interactive Query Plan Visualizer & Optimizer
+- **Dual Visual Modes**:
+  - **Interactive Flow Graph**: Connected React Flow graph with custom nodes, glowing severity borders, bezier edges, and zoom/pan controls.
+  - **Tree List**: Hierarchical expandable tree view with collapsible nodes and indentation guides.
+- **Plan Node Classifications**:
+  - `SCAN` (Critical): Full sequential table scan (O(N) operation).
+  - `SEARCH INDEX` (Good): B-Tree index lookup (O(log N) access).
+  - `COVERING INDEX` (Optimal): Covering index search satisfying query directly from index pages without table heap fetches.
+  - `ROWID LOOKUP` (Optimal): Direct integer primary key lookup.
+  - `TEMP B-TREE` (Warning): In-memory temporary B-Tree sort or aggregation.
+  - `SUBQUERY` (Critical): Correlated subquery warning.
+- **Plain-Language Explanations**: Node inspection card explaining what the SQLite Virtual Machine is actually doing at each step.
+- **Health Score & Advisor**:
+  - Comprehensive 0-100 Plan Health Score.
+  - Actionable recommendations (e.g., `CREATE INDEX idx_orders_status ON orders(status);`).
+  - **One-Click "Apply Suggested Index"**: Instantly executes the recommended index DDL and automatically re-evaluates the query plan, letting you watch the health score jump from 55 to 95!
+- **Plan Comparison**:
+  - Save any plan as **Baseline**.
+  - Compare baseline vs updated plan side-by-side with diff metrics (Table Scans eliminated, Indexes added, Score improvement, and Optimization Verdict).
+
+### 5. Results & Exports
+- **Interactive Results Table**: Column sorting, pagination, and instant client-side text filtering.
+- **CSV Export**: One-click export downloading query results as a CSV file.
+- **Execution Metadata Bar**: Displays execution ID, monotonic runtime in milliseconds, rows affected/returned, statement type, and timestamp.
+- **Saved Queries & History**: Persistent storage in `querylens_meta.db` with one-click reload into active worksheet tabs.
+
+---
+
+## 🏃 Getting Started
 
 ### Prerequisites
 - Python 3.11+
-- Node.js v20+ and npm
-- (Optional) Docker Desktop for Windows
+- Node.js 18+ and npm
 
-### Step 1: Clone and Navigate
-```powershell
-cd c:\Users\speedy\Desktop\DAY4
-```
-
-### Step 2: Setup Python Virtual Environment & Backend
-```powershell
-# Create virtual environment
-python -m venv backend/venv
-
-# Activate virtual environment
-.\backend\venv\Scripts\Activate.ps1
-
-# Install backend dependencies
+### 1. Install Backend Dependencies
+```bash
 pip install -r backend/requirements.txt
 ```
 
-### Step 3: Setup Frontend Dependencies
-```powershell
+### 2. Install Frontend Dependencies
+```bash
 cd frontend
 npm install
 cd ..
 ```
 
-### Step 4: Start the FastAPI Backend Server
-```powershell
-# Runs on http://127.0.0.1:8000
-.\backend\venv\Scripts\python.exe -m uvicorn app.main:app --app-dir backend --host 127.0.0.1 --port 8000 --reload
+### 3. Run the Backend Server
+```bash
+python run.py
 ```
+*Backend runs on `http://127.0.0.1:8000` (Swagger docs available at `http://127.0.0.1:8000/docs`).*
 
-### Step 5: Start the Vite Development Server (in a new terminal)
-```powershell
+### 4. Run the Frontend Dev Server
+In a separate terminal:
+```bash
 cd frontend
-npm run dev -- --host 127.0.0.1 --port 5173
+npm run dev
 ```
-Open **[http://127.0.0.1:5173](http://127.0.0.1:5173)** in your browser.
+*Frontend runs on `http://localhost:5173`.*
 
 ---
 
-## 🧪 Running Tests
+## 🧪 Running Automated Tests
 
-All automated tests use mocked Docker clients and do **not** require a running Docker daemon.
+QueryLens includes an automated test suite verifying query execution, plan analysis, security boundaries, and API endpoints:
 
-### Backend Test Suite (pytest)
-```powershell
-.\backend\venv\Scripts\pytest.exe backend\tests -v
-```
-**Test Results:**
-```
-collected 14 items
-backend/tests/test_compose_and_diagnostics.py::test_valid_compose_validation PASSED
-backend/tests/test_compose_and_diagnostics.py::test_invalid_yaml_syntax PASSED
-backend/tests/test_compose_and_diagnostics.py::test_missing_dependency_detected PASSED
-backend/tests/test_compose_and_diagnostics.py::test_port_conflict_detection PASSED
-backend/tests/test_compose_and_diagnostics.py::test_security_rules_privileged_and_mounts_and_secrets PASSED
-backend/tests/test_compose_and_diagnostics.py::test_file_upload_size_limit PASSED
-backend/tests/test_containers_and_images.py::test_containers_list_mocked PASSED
-backend/tests/test_containers_and_images.py::test_container_inspect_redaction PASSED
-backend/tests/test_containers_and_images.py::test_container_action_confirmation_required PASSED
-backend/tests/test_containers_and_images.py::test_images_list_mocked PASSED
-backend/tests/test_health_and_docker.py::test_health_endpoint PASSED
-backend/tests/test_health_and_docker.py::test_docker_status_disconnected PASSED
-backend/tests/test_health_and_docker.py::test_docker_status_connected PASSED
-backend/tests/test_health_and_docker.py::test_demo_endpoints PASSED
-======================= 14 passed in 0.37s ========================
+```bash
+cd backend
+python -m pytest -v
 ```
 
-### Frontend Production Build Verification
-```powershell
-cd frontend
-npm run build
+**Test Coverage Summary**:
+- `test_select_query_execution`: Verified read-only execution with PRAGMA query_only=ON.
+- `test_multi_statement_blocked`: Verified multiple statements in a single execution are blocked.
+- `test_attach_database_blocked`: Verified ATTACH DATABASE is forbidden.
+- `test_load_extension_blocked`: Verified load_extension is blocked.
+- `test_destructive_confirmation_required`: Verified DROP TABLE requires explicit confirmation.
+- `test_write_and_rollback`: Verified transactional rollback and write safety.
+- `test_explain_table_scan`: Verified detection of table scan on `orders` and suggestion generation.
+- `test_explain_indexed_search`: Verified detection of indexed search on `customer_id`.
+- `test_explain_temp_btree_sort`: Verified detection of temporary B-tree for ORDER BY.
+- `test_plan_comparison`: Verified side-by-side diff calculations between two plans.
+- `test_api_health`, `test_list_databases`, `test_get_database_detail`, `test_execute_endpoint`, `test_explain_endpoint`, `test_saved_queries_crud`, `test_format_sql`: Verified all HTTP API endpoints.
+
+---
+
+## 📐 Project Structure
+
 ```
-**Build Results:**
-```
-✓ 2105 modules transformed.
-dist/index.html                   1.21 kB │ gzip:   0.65 kB
-dist/assets/index-C68TubcW.css   27.12 kB │ gzip:   5.07 kB
-dist/assets/index-BlM0pfnJ.js   480.80 kB │ gzip: 146.00 kB
-✓ built in 1.96s with 0 errors
+DAY4/
+├── run.py                          # Root runner script for FastAPI backend
+├── README.md                       # Complete documentation and setup guide
+├── backend/
+│   ├── pytest.ini                  # Pytest configuration
+│   ├── requirements.txt            # Python dependencies
+│   ├── app/
+│   │   ├── main.py                 # FastAPI application entrypoint
+│   │   ├── core/
+│   │   │   ├── config.py           # Workstation configuration & bounds
+│   │   │   └── security.py         # Statement parser, sanitizer, & security validator
+│   │   ├── models/
+│   │   │   └── schemas.py          # Pydantic models for API & execution engine
+│   │   ├── services/
+│   │   │   ├── db_manager.py       # SQLite database & table introspection
+│   │   │   ├── executor.py         # Safe execution service with timeout & transaction control
+│   │   │   ├── plan_analyzer.py    # SQLite query plan parser, AST analysis, & optimization advisor
+│   │   │   └── sample_data.py      # E-commerce and University sample DB generators
+│   │   └── api/
+│   │       ├── databases.py        # Database listing, creation, reset, schema introspection
+│   │       ├── execute.py          # Query execution endpoint
+│   │       ├── explain.py          # Query plan analysis & comparison endpoints
+│   │       ├── saved_queries.py    # Saved queries CRUD
+│   │       ├── history.py          # Execution history endpoints
+│   │       └── format.py           # SQL formatting endpoint
+│   ├── data/
+│   │   ├── databases/              # Sandboxed SQLite databases (ecommerce.db, university.db)
+│   │   └── querylens_meta.db       # QueryLens metadata (saved queries & history)
+│   └── tests/
+│       ├── test_executor.py        # Security & execution unit tests
+│       ├── test_plan_analyzer.py   # Plan parsing & comparison tests
+│       └── test_api.py             # FastAPI integration tests
+└── frontend/
+    ├── package.json                # Frontend dependencies & scripts
+    ├── vite.config.ts              # Vite configuration with proxy
+    ├── tsconfig.json               # TypeScript configuration
+    ├── index.html                  # HTML template with Google Fonts
+    └── src/
+        ├── index.css               # Graphite Observatory CSS design system
+        ├── main.tsx                # React root mount
+        ├── App.tsx                 # Desktop 3-region workspace layout
+        ├── types/                  # TypeScript interface definitions
+        ├── api/                    # Typed API client
+        └── components/
+            ├── DatabaseExplorer/   # DatabaseSelector, TableList, SavedQueriesDrawer, HistoryDrawer
+            ├── SqlEditor/          # QueryTabs, EditorToolbar, SqlCodeEditor
+            ├── ResultsPanel/       # ResultsTable, ExecutionMetadataBar
+            ├── QueryPlanInspector/ # PlanVisualizer, PlanFlowGraph, PlanTreeView, PlanNodeDetails, PlanLegend, OptimizationAdviser
+            └── Modals/             # TableSampleModal, NewDatabaseModal, AddIndexModal, SaveQueryModal, ShortcutsModal, ConfirmDestructiveModal, PlanComparisonModal
 ```
 
 ---
 
-## 🔒 Security Model & Architectural Safeguards
+## 🛡️ Security Architecture
 
-1. **Host-Level Binding:** The FastAPI application binds exclusively to `127.0.0.1`, preventing exposure to external networks.
-2. **No Arbitrary Shell Execution:** The backend does not expose container command execution (`exec`), arbitrary bash commands, or raw terminal spawning.
-3. **Environment Variable Redaction:** Any variable key or value containing sensitive patterns (e.g., `PASSWORD`, `SECRET`, `TOKEN`, `KEY`, `DATABASE_URL`, AWS access keys) is masked prior to sending data to the browser.
-4. **Destructive Action Guards:** Stopping or restarting containers requires explicit user confirmation.
-5. **Safe File Handling:** Compose file imports are limited to a maximum size of 2MB and verified for UTF-8 encoding.
-6. **No Auto-Execution:** Imported Compose YAML documents are parsed and statically checked; they are never automatically deployed or pulled.
-
----
-
-## 📚 API Reference
-
-| Method | Endpoint | Description |
-|---|---|---|
-| `GET` | `/api/health` | Application health check distinguishing app status from Docker daemon status |
-| `GET` | `/api/docker/status` | Current Docker Engine connection telemetry, version, and container counts |
-| `GET` | `/api/containers` | Lists live or demo containers with status and port mappings |
-| `GET` | `/api/containers/{id}` | Inspects detailed container state, mounts, networks, and redacted env |
-| `POST` | `/api/containers/{id}/action` | Executes safe container actions (`start`, `stop`, `restart`) |
-| `GET` | `/api/containers/{id}/logs` | Fetches container log lines with tail limit and stream parsing |
-| `GET` | `/api/images` | Lists cached local images and sizes |
-| `GET` | `/api/images/{id}` | Inspects image metadata and layer history |
-| `POST` | `/api/compose/validate` | Validates Compose YAML, extracts topology, builds graph, and runs diagnostics |
-| `POST` | `/api/compose/upload` | Multipart file upload with size limit validation |
-| `GET` | `/api/compose/samples` | Built-in sample Compose templates |
-| `POST` | `/api/diagnostics/analyze` | Static configuration linting against 18 rules |
-| `GET` | `/api/demo/*` | Dedicated sample data endpoints for offline sandbox mode |
+QueryLens implements strict defense-in-depth controls for database exploration:
+1. **Sandboxed Directory**: All database access is confined to `backend/data/databases/`. Path traversal sequences (`..`, `/`, `\`) are blocked before database file resolution.
+2. **Read-Only Enforced Pragmas**: Read-only queries (`SELECT`, `WITH`, `VALUES`) enable `PRAGMA query_only = ON;` at the SQLite engine level before evaluation.
+3. **Hardware & VM Timeout**: A custom progress handler (`conn.set_progress_handler(..., 500)`) interrupts query execution if runtime exceeds 5.0 seconds.
+4. **Result Quotas**: Fetches are capped at 1,000 rows with a `has_more` flag to prevent memory exhaustion.
+5. **No Dangerous Pragmas**: Modifying SQLite configuration or loading dynamic shared libraries (`load_extension`) is rejected at statement parsing time.
 
 ---
 
-## 💡 Troubleshooting & Known Limitations
-
-### Windows 11 Docker Named Pipe
-If Docker Desktop is running on Windows 11 but DockSight reports `Disconnected`:
-1. Open Docker Desktop > Settings > Advanced.
-2. Verify that **Enable default Docker socket** or named pipe is checked.
-3. Check permissions in PowerShell: `Test-Path //./pipe/docker_engine`.
-4. Ensure your user account is in the `docker-users` local group: `net localgroup docker-users`.
-
-### Offline / Air-Gapped Mode
-If Docker is not installed on the workstation, DockSight starts without errors. Click **Explore Demo Sandbox** in the top bar or sidebar to inspect simulated microservices, logs, and container states.
-
----
-
-## ⚖️ License
-Released under the MIT License. Developed for professional DevOps engineering and container observability.
+## 📜 License
+QueryLens is built as an open-source database developer tool.
+# query-lens
