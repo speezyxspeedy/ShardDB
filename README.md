@@ -1,235 +1,206 @@
-# QueryLens 🔬
-### Interactive SQL Playground, Query Plan Visualizer & Performance Optimizer
+# ShardDB
 
-**QueryLens** is an interactive developer tool and learning workstation designed for exploring, debugging, and optimizing SQLite database queries. It brings SQLite execution mechanics to life with connected query plan graphs, automated full-table scan detectors, plain-language operational explanations, and instant before/after indexing comparisons.
+[![C++17](https://img.shields.io/badge/C%2B%2B-17-blue.svg)](https://en.wikipedia.org/wiki/C%2B%2B17)
+[![Platform](https://img.shields.io/badge/platform-Windows%2011%20%7C%20Linux%20%7C%20macOS-lightgrey.svg)]()
+[![Tests](https://img.shields.io/badge/tests-22%20passed%20%2F%200%20failed-brightgreen.svg)]()
+[![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 
----
-
-## 🌌 Art Direction: "Graphite Observatory"
-
-QueryLens is styled with the **Graphite Observatory** aesthetic:
-- **Main Background**: `#111418` (Obsidian Deep Space)
-- **Secondary Background**: `#181D23` (Dark Slate Workspace)
-- **Elevated Panels**: `#202730` (Graphite Console)
-- **Borders & Dividers**: `#323B46`
-- **Primary Text**: `#EDF2F7` (Crisp Lunar White)
-- **Secondary Text**: `#98A6B6`
-- **Accents**:
-  - Main Accent: **Ice Blue** (`#56C8F5`)
-  - Secondary Accent: **Electric Violet** (`#A78BFA`)
-  - Warning: **Amber** (`#F4BD50`)
-  - Error / Hazard: **Crimson** (`#FF7373`)
-  - Success: **Emerald** (`#55D6A5`)
-- **Typography**: Interface in clean sans-serif (*Inter*), technical data, queries, execution plans, and IDs in high-readability monospace (*JetBrains Mono*).
+**ShardDB** is a complete, runnable, well-tested mini distributed key-value database built from scratch in modern C++17. It features append-only Write-Ahead Logging (WAL) for durability, consistent hashing with virtual nodes for partitioning, primary-to-replica replication with configurable acknowledgement policies, periodic health monitoring, and a versioned TCP binary wire protocol.
 
 ---
 
-## 🛠️ Technology Stack & Versions
+## Architecture
 
-### Frontend
-- **Framework**: React 18.3.1
-- **Language**: TypeScript 5.6.3
-- **Build Tool**: Vite 6.4.5
-- **Editor**: CodeMirror 6 (`@uiw/react-codemirror` 4.23.7, `@codemirror/lang-sql` 6.8.0, `@codemirror/theme-one-dark` 6.1.2)
-- **Query Plan Tree**: React Flow (`@xyflow/react` 12.3.6)
-- **Icons**: Lucide React 0.469.0
-- **SQL Formatter**: `sql-formatter` 15.4.9
-
-### Backend
-- **Language**: Python 3.11+ (tested on Python 3.14.5)
-- **Web Framework**: FastAPI 0.136.3
-- **ASGI Server**: Uvicorn 0.48.0
-- **Data Validation**: Pydantic 2.13.4
-- **Database Engine**: Python's native `sqlite3` (no heavy ORMs, true SQLite-native execution)
-- **SQL Parser**: `sqlparse` 0.6.0
-- **Testing**: `pytest` 8.4.2
-
----
-
-## 🚀 Key Features
-
-### 1. Database Explorer
-- **Managed Workspace**: Safe sandboxed access to application SQLite databases (`backend/data/databases/`).
-- **Pre-populated Sample Databases**:
-  - `ecommerce.db`: 8,000 orders, 20,000 order items, 1,500 customers, 800 products, 3,000 reviews. Pre-configured with intentional indexing gaps so you can see a 10,000-row table scan and fix it in real-time.
-  - `university.db`: Departments, courses, professors, students, and enrollments for testing multi-table joins, subqueries, and grouping.
-- **Database Management**: Create new custom databases, or reset bundled sample databases to their pristine populated state with one click.
-- **Deep Schema Introspection**: Expand tables to inspect declared columns, data types, primary keys, nullability flags, and index definitions with indexed columns.
-- **Sample Data Preview**: Instant modal previewing real rows from any table with pagination and column typing.
-- **One-Click Index Creator**: "+ Index" helper modal to quickly create an index on any column without writing raw DDL.
-
-### 2. SQL Editor
-- **CodeMirror 6 Worksheets**: Full SQL syntax highlighting, line numbers, automatic bracket closing, and active line glow.
-- **Worksheet Tabs**: Create multiple query tabs (`Worksheet 1`, `Worksheet 2`, ...) without losing unsaved code.
-- **Smart Mode Indicator**: Automatically detects whether a query is `READ-ONLY`, `MUTATION`, or `DESTRUCTIVE`.
-- **Keyboard Shortcuts**:
-  - `Ctrl + Enter` / `Cmd + Enter`: Execute current query
-  - `Ctrl + S` / `Cmd + S`: Save query with title and tags
-  - `Ctrl + Shift + F`: Auto-format SQL with uppercase keywords and standardized indentation
-  - `Ctrl + F`: Search / Find in editor
-
-### 3. Safe Execution Engine
-- **Single-Statement Enforcement**: Blocks multi-statement script injections (e.g. `SELECT 1; DROP TABLE users;`).
-- **PRAGMA Restrictions**: Strictly forbids security-altering PRAGMAs (`writable_schema`, `load_extension`, `cache_spill`). Only safe introspection PRAGMAs are permitted.
-- **Filesystem Isolation**: Forbids `ATTACH`, `DETACH`, and path traversal.
-- **Execution Timeouts**: SQLite virtual machine progress handler interrupts tight loops or runaway queries after 5.0 seconds.
-- **Result Row Limits**: Returns up to 1,000 rows with clear `has_more` indicators to prevent browser crashes on huge datasets.
-- **Transactional Safety**: Write queries run inside explicit transactions (`BEGIN IMMEDIATE`) with automatic rollback on error.
-- **Destructive Operation Confirmations**: Prompts user confirmation for `DROP TABLE`, `DROP INDEX`, or `DELETE` without `WHERE`.
-
-### 4. Interactive Query Plan Visualizer & Optimizer
-- **Dual Visual Modes**:
-  - **Interactive Flow Graph**: Connected React Flow graph with custom nodes, glowing severity borders, bezier edges, and zoom/pan controls.
-  - **Tree List**: Hierarchical expandable tree view with collapsible nodes and indentation guides.
-- **Plan Node Classifications**:
-  - `SCAN` (Critical): Full sequential table scan (O(N) operation).
-  - `SEARCH INDEX` (Good): B-Tree index lookup (O(log N) access).
-  - `COVERING INDEX` (Optimal): Covering index search satisfying query directly from index pages without table heap fetches.
-  - `ROWID LOOKUP` (Optimal): Direct integer primary key lookup.
-  - `TEMP B-TREE` (Warning): In-memory temporary B-Tree sort or aggregation.
-  - `SUBQUERY` (Critical): Correlated subquery warning.
-- **Plain-Language Explanations**: Node inspection card explaining what the SQLite Virtual Machine is actually doing at each step.
-- **Health Score & Advisor**:
-  - Comprehensive 0-100 Plan Health Score.
-  - Actionable recommendations (e.g., `CREATE INDEX idx_orders_status ON orders(status);`).
-  - **One-Click "Apply Suggested Index"**: Instantly executes the recommended index DDL and automatically re-evaluates the query plan, letting you watch the health score jump from 55 to 95!
-- **Plan Comparison**:
-  - Save any plan as **Baseline**.
-  - Compare baseline vs updated plan side-by-side with diff metrics (Table Scans eliminated, Indexes added, Score improvement, and Optimization Verdict).
-
-### 5. Results & Exports
-- **Interactive Results Table**: Column sorting, pagination, and instant client-side text filtering.
-- **CSV Export**: One-click export downloading query results as a CSV file.
-- **Execution Metadata Bar**: Displays execution ID, monotonic runtime in milliseconds, rows affected/returned, statement type, and timestamp.
-- **Saved Queries & History**: Persistent storage in `querylens_meta.db` with one-click reload into active worksheet tabs.
-
----
-
-## 🏃 Getting Started
-
-### Prerequisites
-- Python 3.11+
-- Node.js 18+ and npm
-
-### 1. Install Backend Dependencies
-```bash
-pip install -r backend/requirements.txt
+```
+                    +--------------------+
+                    |    ShardDB CLI     |
+                    +---------+----------+
+                              | TCP (SHDB Protocol)
+                              v
+                    +--------------------+
+                    |    Coordinator     |
+                    |  - ShardManager    |
+                    |  - HealthMonitor   |
+                    +----+-----+----+----+
+                         |     |    |
+        +----------------+     |    +----------------+
+        | TCP                  | TCP                 | TCP
+        v                      v                     v
++---------------+      +---------------+      +---------------+
+| Storage Node1 |<====>| Storage Node2 |<====>| Storage Node3 |
+|  - Engine     |      |  - Engine     |      |  - Engine     |
+|  - WAL Log    |      |  - WAL Log    |      |  - WAL Log    |
+|  - Replicator |      |  - Replicator |      |  - Replicator |
++---------------+      +---------------+      +---------------+
 ```
 
-### 2. Install Frontend Dependencies
-```bash
-cd frontend
-npm install
-cd ..
-```
+---
 
-### 3. Run the Backend Server
-```bash
-python run.py
-```
-*Backend runs on `http://127.0.0.1:8000` (Swagger docs available at `http://127.0.0.1:8000/docs`).*
+## Key Features
 
-### 4. Run the Frontend Dev Server
-In a separate terminal:
-```bash
-cd frontend
-npm run dev
-```
-*Frontend runs on `http://localhost:5173`.*
+- **Storage Engine & WAL**: Append-only Write-Ahead Log with IEEE 802.3 CRC32 checksums, in-memory hash table index, and explicit physical disk flush (`_commit` / `FlushFileBuffers` on Windows, `fsync` on POSIX).
+- **Crash Recovery**: Safe replay on restart. Trailing incomplete records caused by abrupt power loss are automatically detected and truncated back to the last valid record boundary. Middle corruption is detected and safely reported.
+- **Consistent Hashing**: 64-bit MurmurHash3 consistent hashing ring with configurable virtual nodes (default: 100 virtual tokens per node). Deterministic routing and preference lists for replication.
+- **Primary-to-Replica Replication**: Configurable replication factor and write acknowledgement policies (`primary_only`, `all`, `quorum`). Replicas persist operations to their local WAL and support idempotent deduplication.
+- **Binary Wire Protocol (`SHDB`)**: Fixed 26-byte header with magic bytes (`0x53484442`), versioning, opcodes, request IDs, CRC32 header integrity check, and strict pre-allocation frame size limits.
+- **Health Monitoring**: Asynchronous background health check thread polling nodes via `PING`/`PONG`. Unhealthy nodes are flagged immediately, returning explicit `NODE_UNAVAILABLE` errors.
+- **Zero External Dependencies**: Built entirely using C++17 standard libraries, Winsock2/POSIX sockets, and a built-in test framework.
 
 ---
 
-## 🧪 Running Automated Tests
-
-QueryLens includes an automated test suite verifying query execution, plan analysis, security boundaries, and API endpoints:
-
-```bash
-cd backend
-python -m pytest -v
-```
-
-**Test Coverage Summary**:
-- `test_select_query_execution`: Verified read-only execution with PRAGMA query_only=ON.
-- `test_multi_statement_blocked`: Verified multiple statements in a single execution are blocked.
-- `test_attach_database_blocked`: Verified ATTACH DATABASE is forbidden.
-- `test_load_extension_blocked`: Verified load_extension is blocked.
-- `test_destructive_confirmation_required`: Verified DROP TABLE requires explicit confirmation.
-- `test_write_and_rollback`: Verified transactional rollback and write safety.
-- `test_explain_table_scan`: Verified detection of table scan on `orders` and suggestion generation.
-- `test_explain_indexed_search`: Verified detection of indexed search on `customer_id`.
-- `test_explain_temp_btree_sort`: Verified detection of temporary B-tree for ORDER BY.
-- `test_plan_comparison`: Verified side-by-side diff calculations between two plans.
-- `test_api_health`, `test_list_databases`, `test_get_database_detail`, `test_execute_endpoint`, `test_explain_endpoint`, `test_saved_queries_crud`, `test_format_sql`: Verified all HTTP API endpoints.
-
----
-
-## 📐 Project Structure
+## Project Structure
 
 ```
 DAY4/
-├── run.py                          # Root runner script for FastAPI backend
-├── README.md                       # Complete documentation and setup guide
-├── backend/
-│   ├── pytest.ini                  # Pytest configuration
-│   ├── requirements.txt            # Python dependencies
-│   ├── app/
-│   │   ├── main.py                 # FastAPI application entrypoint
-│   │   ├── core/
-│   │   │   ├── config.py           # Workstation configuration & bounds
-│   │   │   └── security.py         # Statement parser, sanitizer, & security validator
-│   │   ├── models/
-│   │   │   └── schemas.py          # Pydantic models for API & execution engine
-│   │   ├── services/
-│   │   │   ├── db_manager.py       # SQLite database & table introspection
-│   │   │   ├── executor.py         # Safe execution service with timeout & transaction control
-│   │   │   ├── plan_analyzer.py    # SQLite query plan parser, AST analysis, & optimization advisor
-│   │   │   └── sample_data.py      # E-commerce and University sample DB generators
-│   │   └── api/
-│   │       ├── databases.py        # Database listing, creation, reset, schema introspection
-│   │       ├── execute.py          # Query execution endpoint
-│   │       ├── explain.py          # Query plan analysis & comparison endpoints
-│   │       ├── saved_queries.py    # Saved queries CRUD
-│   │       ├── history.py          # Execution history endpoints
-│   │       └── format.py           # SQL formatting endpoint
-│   ├── data/
-│   │   ├── databases/              # Sandboxed SQLite databases (ecommerce.db, university.db)
-│   │   └── querylens_meta.db       # QueryLens metadata (saved queries & history)
-│   └── tests/
-│       ├── test_executor.py        # Security & execution unit tests
-│       ├── test_plan_analyzer.py   # Plan parsing & comparison tests
-│       └── test_api.py             # FastAPI integration tests
-└── frontend/
-    ├── package.json                # Frontend dependencies & scripts
-    ├── vite.config.ts              # Vite configuration with proxy
-    ├── tsconfig.json               # TypeScript configuration
-    ├── index.html                  # HTML template with Google Fonts
-    └── src/
-        ├── index.css               # Graphite Observatory CSS design system
-        ├── main.tsx                # React root mount
-        ├── App.tsx                 # Desktop 3-region workspace layout
-        ├── types/                  # TypeScript interface definitions
-        ├── api/                    # Typed API client
-        └── components/
-            ├── DatabaseExplorer/   # DatabaseSelector, TableList, SavedQueriesDrawer, HistoryDrawer
-            ├── SqlEditor/          # QueryTabs, EditorToolbar, SqlCodeEditor
-            ├── ResultsPanel/       # ResultsTable, ExecutionMetadataBar
-            ├── QueryPlanInspector/ # PlanVisualizer, PlanFlowGraph, PlanTreeView, PlanNodeDetails, PlanLegend, OptimizationAdviser
-            └── Modals/             # TableSampleModal, NewDatabaseModal, AddIndexModal, SaveQueryModal, ShortcutsModal, ConfirmDestructiveModal, PlanComparisonModal
+  CMakeLists.txt                # Build definition
+  CMakePresets.json             # VS Code & Ninja build presets
+  README.md                     # Project documentation
+  LICENSE                       # MIT License
+  .gitignore                    # Git ignore file
+  config/
+    cluster.example.json        # 3-node + coordinator cluster configuration
+  docs/
+    ARCHITECTURE.md             # Detailed architectural overview
+    PROTOCOL.md                 # 26-byte binary wire protocol specification
+    STORAGE_ENGINE.md           # WAL layout, durability & recovery details
+    CONSISTENCY.md              # Consistency model, ack policies & limits
+    WINDOWS_SETUP.md            # Windows 11 step-by-step developer guide
+    TROUBLESHOOTING.md          # Port conflicts, node failures & diagnostics
+  include/
+    sharddb/
+      common/                   # Types, CRC32, Status, Logger
+      config/                   # Cluster JSON configuration parser
+      network/                  # Portable Socket & TcpListener abstraction
+      protocol/                 # Message framing & serializer
+      storage/                  # WAL & StorageEngine
+      sharding/                 # ConsistentHashRing & ShardManager
+      replication/              # ReplicationManager
+      coordinator/              # HealthMonitor & Coordinator
+      node/                     # StorageNode
+      client/                   # Client library
+  src/                          # Component implementations
+  tests/
+    unit/                       # CRC, WAL, Engine, Ring, Protocol, Config tests
+    integration/                # End-to-end cluster sharding & failover tests
+    test_runner.cpp             # Test executable entry point
+  benchmarks/
+    benchmark_main.cpp          # Throughput and latency benchmark
+  scripts/
+    start_cluster.ps1           # Launches 3 storage nodes and coordinator
+    stop_cluster.ps1            # Cleanly stops cluster processes
+    run_tests.ps1               # Builds and runs test suite
 ```
 
 ---
 
-## 🛡️ Security Architecture
+## Quick Start on Windows 11
 
-QueryLens implements strict defense-in-depth controls for database exploration:
-1. **Sandboxed Directory**: All database access is confined to `backend/data/databases/`. Path traversal sequences (`..`, `/`, `\`) are blocked before database file resolution.
-2. **Read-Only Enforced Pragmas**: Read-only queries (`SELECT`, `WITH`, `VALUES`) enable `PRAGMA query_only = ON;` at the SQLite engine level before evaluation.
-3. **Hardware & VM Timeout**: A custom progress handler (`conn.set_progress_handler(..., 500)`) interrupts query execution if runtime exceeds 5.0 seconds.
-4. **Result Quotas**: Fetches are capped at 1,000 rows with a `has_more` flag to prevent memory exhaustion.
-5. **No Dangerous Pragmas**: Modifying SQLite configuration or loading dynamic shared libraries (`load_extension`) is rejected at statement parsing time.
+### 1. Build the Project
+Open PowerShell in the project directory:
+```powershell
+$env:PATH = "C:\msys64\ucrt64\bin;" + $env:PATH
+cmake -B build -G Ninja -DCMAKE_BUILD_TYPE=Release
+cmake --build build
+```
+
+### 2. Run the Automated Test Suite
+```powershell
+.\build\sharddb-tests.exe
+```
+Output:
+```
+=======================================================
+               Running ShardDB Test Suite              
+=======================================================
+[ RUN      ] ClusterIntegrationTest.EndToEndShardingAndReplication
+[       OK ] ClusterIntegrationTest.EndToEndShardingAndReplication
+...
+-------------------------------------------------------
+ Test Results: 22 passed, 0 failed, 22 total
+=======================================================
+```
+
+### 3. Start the Local 3-Node Cluster
+```powershell
+.\scripts\start_cluster.ps1
+```
+
+### 4. Connect with the CLI
+```powershell
+.\build\sharddb-cli.exe
+```
+
+Interactive example:
+```text
+sharddb> SET username "shubh"
+OK
+
+sharddb> GET username
+"shubh"
+
+sharddb> EXISTS username
+(integer) 1
+
+sharddb> SET city "San Francisco"
+OK
+
+sharddb> KEYS
+1) "city"
+2) "username"
+
+sharddb> NODES
+{ ... cluster topology and health info ... }
+
+sharddb> STATUS
+{ ... request metrics and coordinator uptime ... }
+
+sharddb> DELETE city
+(integer) 1
+
+sharddb> GET city
+(nil)
+
+sharddb> EXIT
+```
+
+### 5. Run the Benchmark
+```powershell
+.\build\sharddb-bench.exe --requests 1000 --threads 4 --val-size 128
+```
+
+### 6. Stop the Cluster Cleanly
+```powershell
+.\scripts\stop_cluster.ps1
+```
 
 ---
 
-## 📜 License
-QueryLens is built as an open-source database developer tool.
-# query-lens
+## CLI Command Reference
+
+| Command | Arguments | Description |
+|---|---|---|
+| `SET` | `<key> <value> [policy]` | Store key-value pair. Policy: `primary_only`, `all`, `quorum` |
+| `GET` | `<key>` | Retrieve value by key (returns `(nil)` if not found) |
+| `EXISTS` | `<key>` | Returns 1 if key exists, 0 otherwise |
+| `DELETE` | `<key> [policy]` | Delete key. Policy: `primary_only`, `all`, `quorum` |
+| `KEYS` | `[limit] [prefix]` | List keys with optional limit and prefix |
+| `STATUS` | None | Show coordinator metrics and request counters |
+| `NODES` | None | Show cluster nodes, virtual token counts, and health states |
+| `INFO` | None | Display cluster configuration and runtime info |
+| `HELP` | None | Display command help |
+| `EXIT` | None | Exit the CLI session |
+
+---
+
+## Known Limitations & Roadmap
+
+- **Replication**: v1 uses primary-to-replica replication. Automatic leader election (via Raft or Paxos) is scheduled for v2.
+- **Failover**: When a primary node fails, requests return `NODE_UNAVAILABLE` rather than auto-promoting to avoid split-brain.
+- **Compaction**: WAL log compaction and SSTable/LSM-tree tiered storage are planned for future versions.
+
+---
+
+## License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+# ShardDB
